@@ -1,0 +1,94 @@
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Node.js dependencies
+node_modules/
+.vite/
+
+# Build output
+dist/
+dist-ssr/
+build/
+out/
+
+# Local environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE/editor-specific files
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.iml
+*.iws
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# External drive and thumbnail files
+._*
+.Spotlight-V100
+.Trashes
+*.temp
+
+# Coverage reports
+coverage/
+
+# Package manager files
+*.tgz
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Linter and build caches
+.eslintcache
+.cache/
+
+# React Native specific
+.expo/
+*.expo
+
+# Svelte specific
+.svelte-kit/
+
+# Static files (local development)
+public/local/
+
+# npm cache directory
+.npm/
+
+# Miscellaneous
+*.bak
+*.tmp
+*.pid
+*.seed
+*.pid.lock
+*.orig
+~$*
+
+# TypeScript specific
+*.tsbuildinfo
+
+# Git merge conflict files
+*.orig
+
+# JetBrains IDEs
+.idea/
+out/
