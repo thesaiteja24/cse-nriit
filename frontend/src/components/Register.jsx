@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 
@@ -11,26 +11,46 @@ export default function Register() {
     formState: { errors },
   } = useForm();
 
+  const [flashMessage, setFlashMessage] = useState({ type: "", message: "" });
+
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(backend_url + "register", data);
-      alert(response.data.message);
+      setFlashMessage({ type: "success", message: response.data.message });
+
+      // Clear flash message after 5 seconds
+      setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
     } catch (err) {
-      console.error(err);
-      alert(
-        err.response?.data.message || "An error occurred during registration"
-      );
+      const errorMessage =
+        err.response?.data.message || "An error occurred during registration";
+      setFlashMessage({ type: "error", message: errorMessage });
+
+      // Clear flash message after 5 seconds
+      setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="flex min-h-screen items-center justify-center bg-gray-200 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-6 rounded-lg">
+        {/* Flash Message */}
+        {flashMessage.message && (
+          <div
+            className={`${
+              flashMessage.type === "success"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            } p-2 rounded-md mb`}
+          >
+            {flashMessage.message}
+          </div>
+        )}
         <div className="text-center">
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Create an account
           </h2>
         </div>
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
