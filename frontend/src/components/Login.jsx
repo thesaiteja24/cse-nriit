@@ -46,8 +46,8 @@ export default function Login() {
           <div
             className={`${
               flashMessage.type === "success"
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
+                ? "bg-green-500 text-white"
+                : "bg-red-500 text-white"
             } p-2 rounded-md mb-4`}
           >
             {flashMessage.message}
