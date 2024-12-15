@@ -3,27 +3,20 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const passport = require("passport");
 const session = require("express-session");
-const User = require("./models/user");
+const cors = require("cors");
+const connectDB = require("./config/db");
+const configurePassport = require("./config/passport");
+const userRoutes = require("./routes/user");
 
 const app = express();
 const port = process.env.PORT || 3000;
-const db_url =
-  process.env.ATLAS_DB_URL || "mongodb://localhost:27017/cse-nriit";
+const db_url = process.env.ATLAS_DB_URL || "mongodb://localhost:27017/cse-nriit";
 
-// Mongo Connection
-async function main() {
-  await mongoose
-    .connect(db_url)
-    .then(() => console.log("Connected to DB"))
-    .catch((err) => console.error("Failed to connect to DB:", err));
-}
-main();
+// Connect to DB
+connectDB(db_url);
 
-// Middleware Config
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -34,94 +27,12 @@ app.use(
     saveUninitialized: false,
   })
 );
-app.use(passport.initialize());
-app.use(passport.session());
 
-// Configure Passport to use the User model
-passport.use(User.createStrategy());
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+// Passport
+configurePassport(app);
 
 // Routes
-app.get("/", (req, res) => {
-  res.send("Hello World");
-});
-
-app.post("/register", async (req, res) => {
-  const strongPasswordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-  try {
-    const { fullname, email, password } = req.body;
-
-    if (!fullname || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    // Validate password strength
-    if (!strongPasswordRegex.test(password)) {
-      return res.status(400).json({
-        message:
-          "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character",
-      });
-    }
-
-    const existingUser = await User.findOne({ email });
-
-    if (existingUser) {
-      return res.status(400).json({ message: "Email already exists" });
-    }
-
-    // Register new User
-    const user = new User({ fullname, email });
-    await User.register(user, password);
-
-    res.status(201).json({ message: "User registered successfully" });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: err.message || "Internal Server Error" });
-  }
-});
-
-app.post("/login", async (req, res, next) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email and password are required" });
-  }
-
-  try {
-    // Check if the email exists in the database
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(400).json({ message: "Email does not exist" });
-    }
-
-    // Attempt to authenticate the user using passport-local strategy
-    passport.authenticate("local", (err, user, info) => {
-      if (err) {
-        return res.status(500).json({ message: "Internal server error" });
-      }
-      
-      if (!user) {
-        return res.status(400).json({ message: "Incorrect password" });
-      }
-      
-      // Successfully authenticated
-      req.logIn(user, (err) => {
-        if (err) {
-          return res.status(500).json({ message: "Error during login" });
-        }
-        return res.status(200).json({ message: "Login successful", user: user });
-      });
-    })(req, res, next); // Call the passport authentication callback
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Internal Server Error" });
-  }
-});
-
+app.use("/", userRoutes);
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
