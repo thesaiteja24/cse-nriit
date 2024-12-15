@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 export default function Register() {
   const backend_url = import.meta.env.VITE_BACKEND_URL;
@@ -12,6 +15,11 @@ export default function Register() {
   } = useForm();
 
   const [flashMessage, setFlashMessage] = useState({ type: "", message: "" });
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const onSubmit = async (data) => {
     try {
@@ -53,6 +61,7 @@ export default function Register() {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="rounded-md shadow-sm -space-y-px">
+            {/* Full Name Field */}
             <div>
               <label htmlFor="fullname" className="sr-only">
                 Full Name
@@ -71,6 +80,8 @@ export default function Register() {
                 </p>
               )}
             </div>
+
+            {/* Email Field */}
             <div>
               <label htmlFor="email" className="sr-only">
                 Email address
@@ -95,14 +106,16 @@ export default function Register() {
                 </p>
               )}
             </div>
-            <div>
+
+            {/* Password Field */}
+            <div className="relative">
               <label htmlFor="password" className="sr-only">
                 Password
               </label>
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 {...register("password", {
                   required: "Password is required",
                   minLength: {
@@ -119,6 +132,16 @@ export default function Register() {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
               />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute inset-y-0 right-3 flex items-center text-gray-600 z-10"
+              >
+                <FontAwesomeIcon
+                  icon={showPassword ? faEyeSlash : faEye}
+                  className="text-lg"
+                />
+              </button>
               {errors.password && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.password.message}
@@ -126,6 +149,8 @@ export default function Register() {
               )}
             </div>
           </div>
+
+          {/* Register Button */}
 
           <div>
             <button
@@ -136,7 +161,6 @@ export default function Register() {
             </button>
           </div>
         </form>
-
         <div className="mt-6 flex items-center">
           <div className="border-t border-gray-300 flex-grow"></div>
           <div className="text-sm text-gray-500 px-2 whitespace-nowrap m-1">
@@ -169,15 +193,15 @@ export default function Register() {
             LinkedIn
           </button>
         </div>
-
+        {/* Other Links */}
         <p className="mt-6 text-center text-sm text-gray-500">
           Already have an account?{" "}
-          <a
-            href="#"
+          <Link
+            to="/login"
             className="font-medium text-indigo-600 hover:text-indigo-500"
           >
             Sign in
-          </a>
+          </Link>
         </p>
       </div>
     </div>

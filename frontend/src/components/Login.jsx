@@ -1,6 +1,9 @@
-import { React, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 export default function Login() {
   const backend_url = import.meta.env.VITE_BACKEND_URL;
@@ -12,17 +15,22 @@ export default function Login() {
   } = useForm();
 
   const [flashMessage, setFlashMessage] = useState({ type: "", message: "" });
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(backend_url + "login", data);
+      const response = await axios.post(`${backend_url}login`, data);
       setFlashMessage({ type: "success", message: response.data.message });
 
       // Clear flash message after 5 seconds
       setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
     } catch (err) {
       const errorMessage =
-        err.response?.data.message || "An error occurred during registration";
+        err.response?.data.message || "An error occurred during login";
       setFlashMessage({ type: "error", message: errorMessage });
 
       // Clear flash message after 5 seconds
@@ -40,7 +48,7 @@ export default function Login() {
               flashMessage.type === "success"
                 ? "bg-green-100 text-green-700"
                 : "bg-red-100 text-red-700"
-            } p-2 rounded-md mb`}
+            } p-2 rounded-md mb-4`}
           >
             {flashMessage.message}
           </div>
@@ -50,6 +58,7 @@ export default function Login() {
             Login to your account
           </h2>
         </div>
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -70,18 +79,26 @@ export default function Login() {
                 </p>
               )}
             </div>
-            <div>
+            <div className="relative">
               <label htmlFor="password" className="sr-only">
                 Password
               </label>
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 {...register("password", { required: "Password is required" })}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
               />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute inset-y-0 right-3 flex items-center text-gray-600 z-10"
+
+              >
+                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+              </button>
               {errors.password && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.password.message}
@@ -162,12 +179,12 @@ export default function Login() {
 
         <p className="mt-6 text-center text-sm text-gray-500">
           Not a user?{" "}
-          <a
-            href="#"
+          <Link
+            to="/register"
             className="font-medium text-indigo-600 hover:text-indigo-500"
           >
             Register
-          </a>
+          </Link>
         </p>
       </div>
     </div>
