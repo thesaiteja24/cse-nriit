@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 export default function Login() {
+  const navigate = useNavigate();
   const backend_url = import.meta.env.VITE_BACKEND_URL;
 
   const {
@@ -28,6 +29,8 @@ export default function Login() {
 
       // Clear flash message after 5 seconds
       setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
+      navigate("/courses", {state: { message: response.data.message, type: "success" }},);
+      
     } catch (err) {
       const errorMessage =
         err.response?.data.message || "An error occurred during login";
@@ -95,7 +98,6 @@ export default function Login() {
                 type="button"
                 onClick={togglePasswordVisibility}
                 className="absolute inset-y-0 right-3 flex items-center text-gray-600 z-10"
-
               >
                 <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
               </button>

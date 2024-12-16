@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 export default function Register() {
+  const navigate = useNavigate();
   const backend_url = import.meta.env.VITE_BACKEND_URL;
 
   const {
@@ -28,6 +29,7 @@ export default function Register() {
 
       // Clear flash message after 5 seconds
       setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
+      navigate("/courses", {state: { message: response.data.message, type: "success" }},);
     } catch (err) {
       const errorMessage =
         err.response?.data.message || "An error occurred during registration";
