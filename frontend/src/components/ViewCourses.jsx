@@ -77,10 +77,10 @@ const ViewCourses = () => {
       });
     } catch (error) {
       console.error("Error fetching dropdown options:", error);
-    //   setFlashMessage({
-    //     type: "error",
-    //     message: "Failed to load dropdown options."
-    //   });
+      setFlashMessage({
+        type: "error",
+        message: "Failed to load dropdown options."
+      });
     } finally {
       setIsLoading(false);
     }
