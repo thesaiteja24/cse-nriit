@@ -11,14 +11,8 @@ const ViewCourses = () => {
   const [regulation, setRegulation] = useState("");
   const [courses, setCourses] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [editCourse, setEditCourse] = useState(false);
   const [flashMessage, setFlashMessage] = useState({ type: "", message: "" });
   const [isLoading, setIsLoading] = useState(true);
-
-  // Dropdown options state
-  const [availableSemesters, setAvailableSemesters] = useState([]);
-  const [availableBranches, setAvailableBranches] = useState([]);
-  const [availableRegulations, setAvailableRegulations] = useState([]);
 
   // New course state with all required fields
   const [newCourse, setNewCourse] = useState({
@@ -33,11 +27,17 @@ const ViewCourses = () => {
     category: {},
   });
 
+  const [selectedCourse, setSelectedCourse] = useState(null);
+
+  // Dropdown options state
+  const [availableSemesters, setAvailableSemesters] = useState([]);
+  const [availableBranches, setAvailableBranches] = useState([]);
+  const [availableRegulations, setAvailableRegulations] = useState([]);
+
   useEffect(() => {
     fetchDropdownOptions();
   }, []);
 
-  // Flash message timeout logic
   useEffect(() => {
     if (flashMessage.message) {
       const timer = setTimeout(() => {
@@ -57,7 +57,7 @@ const ViewCourses = () => {
         axios.get(`${backend_url}api/regulations`),
       ]);
 
-      setAvailableSemesters(semestersRes.data); // axios responses have `.data`
+      setAvailableSemesters(semestersRes.data);
       setAvailableBranches(branchesRes.data);
       setAvailableRegulations(regulationsRes.data);
     } catch (error) {
@@ -82,14 +82,9 @@ const ViewCourses = () => {
 
     try {
       const response = await axios.get(`${backend_url}courses`, {
-        params: {
-          semester: semester,
-          branch: branch,
-          regulation: regulation,
-        },
+        params: { semester, branch, regulation },
       });
 
-      console.log(response);
       if (!response.data.success) {
         throw new Error("Failed to fetch courses");
       }
@@ -108,82 +103,72 @@ const ViewCourses = () => {
     }
   };
 
-  const addCourse = async () => {
-    const requiredFields = [
-      "courseCode",
-      "name",
-      "credits",
-      "type",
-      "department",
-      "semester",
-      "regulation",
-    ];
-    const missingFields = requiredFields.filter((field) => !newCourse[field]);
-
-    if (missingFields.length > 0) {
-      setFlashMessage({
-        type: "error",
-        message: `Please fill in: ${missingFields.join(", ")}`,
-      });
-      return;
-    }
-
-    if (isNaN(newCourse.credits)) {
-      setFlashMessage({
-        type: "error",
-        message: "Credits must be a number",
-      });
-      return;
-    }
-
+  const saveCourse = async () => {
     try {
-      const response = await axios.post(`${backend_url}courses`, {
-        ...newCourse,
-        credits: Number(newCourse.credits),
-      });
+      const url = selectedCourse
+        ? `${backend_url}courses/${selectedCourse._id}`
+        : `${backend_url}courses`;
+      const method = selectedCourse ? "put" : "post";
+
+      const response = await axios[method](url, selectedCourse || newCourse);
 
       if (!response.data.success) {
-        throw new Error(response.data.message || "Failed to add course");
+        throw new Error(response.data.message || "Failed to save course");
       }
 
       setShowModal(false);
-      setNewCourse({
-        courseCode: "",
-        name: "",
-        shortName: "",
-        credits: "",
-        type: "THEORY",
-        department: "",
-        semester: "",
-        regulation: "",
-        category: {},
-      });
+      setSelectedCourse(null);
+      fetchCourses();
 
-      await fetchCourses();
       setFlashMessage({
         type: "success",
-        message: response.data.message || "Course added successfully!",
+        message: response.data.message || "Course saved successfully!",
       });
     } catch (error) {
-      console.error("Error adding course:", error);
+      console.error("Error saving course:", error);
       setFlashMessage({
         type: "error",
-        message: error.message || "Failed to add course.",
+        message: error.message || "Failed to save course.",
       });
     }
   };
 
-  const updateCourse = async () => {
-    const course = courses.find((c) => c.id === selectedCourseId);
+  const deleteCourse = async (courseId) => {
+    if (!window.confirm("Are you sure you want to delete this course?")) return;
+
+    try {
+      const response = await axios.delete(`${backend_url}courses/${courseId}`);
+
+      if (!response.data.success) {
+        throw new Error("Failed to delete course");
+      }
+
+      fetchCourses();
+
+      setFlashMessage({
+        type: "success",
+        message: response.data.message || "Course deleted successfully!",
+      });
+    } catch (error) {
+      console.error("Error deleting course:", error);
+      setFlashMessage({
+        type: "error",
+        message: error.message || "Failed to delete course.",
+      });
+    }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-[#EDE6DA]">
-        <div className="text-xl text-gray-600">Loading...</div>
-      </div>
-    );
-  }
+  const openEditModal = (course) => {
+    setSelectedCourse(course);
+    setShowModal(true);
+  };
+
+  const handleInputChange = (key, value) => {
+    const updated = selectedCourse ? { ...selectedCourse } : { ...newCourse };
+    updated[key] = value;
+    if (selectedCourse) setSelectedCourse(updated);
+    else setNewCourse(updated);
+  };
 
   return (
     <div className="bg-[#EDE6DA] min-h-screen font-sans relative">
@@ -272,14 +257,13 @@ const ViewCourses = () => {
                 <th className="p-2 border">Department</th>
                 <th className="p-2 border">Semester</th>
                 <th className="p-2 border">Regulation</th>
+                <th className="p-2 border">Edit Course</th>
+                <th className="p-2 border">Delete Course</th>
               </tr>
             </thead>
             <tbody>
               {courses.map((course) => (
-                <tr
-                  key={course._id}
-                  className="text-center hover:bg-gray-100 transition-colors"
-                >
+                <tr key={course._id} className="text-center hover:bg-gray-100">
                   <td className="p-2 border">{course.courseCode}</td>
                   <td className="p-2 border">{course.name}</td>
                   <td className="p-2 border">{course.shortName}</td>
@@ -288,6 +272,23 @@ const ViewCourses = () => {
                   <td className="p-2 border">{course.department}</td>
                   <td className="p-2 border">{course.semester}</td>
                   <td className="p-2 border">{course.regulation}</td>
+
+                  <td className="p-2 border">
+                    <button
+                      className="bg-blue-500 text-white px-2 py-1 rounded mr-2"
+                      onClick={() => openEditModal(course)}
+                    >
+                      Edit
+                    </button>
+                  </td>
+                  <td className="p-2 border">
+                    <button
+                      className="bg-red-500 text-white px-2 py-1 rounded"
+                      onClick={() => deleteCourse(course._id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -302,50 +303,52 @@ const ViewCourses = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-[#F6F1E6] p-6 rounded shadow-md w-full max-w-md">
             <h2 className="text-xl font-semibold mb-4 text-black">
-              Add Course
+              {selectedCourse ? "Edit Course" : "Add Course"}
             </h2>
             <div className="flex flex-col gap-2">
               <input
                 type="text"
                 placeholder="Course Code"
-                value={newCourse.courseCode}
+                value={
+                  selectedCourse
+                    ? selectedCourse.courseCode
+                    : newCourse.courseCode
+                }
                 onChange={(e) =>
-                  setNewCourse({ ...newCourse, courseCode: e.target.value })
+                  handleInputChange("courseCode", e.target.value)
                 }
                 className="border border-gray-400 p-2 rounded text-black"
               />
               <input
                 type="text"
                 placeholder="Name"
-                value={newCourse.name}
-                onChange={(e) =>
-                  setNewCourse({ ...newCourse, name: e.target.value })
-                }
+                value={selectedCourse ? selectedCourse.name : newCourse.name}
+                onChange={(e) => handleInputChange("name", e.target.value)}
                 className="border border-gray-400 p-2 rounded text-black"
               />
               <input
                 type="text"
                 placeholder="Short Name"
-                value={newCourse.shortName}
-                onChange={(e) =>
-                  setNewCourse({ ...newCourse, shortName: e.target.value })
+                value={
+                  selectedCourse
+                    ? selectedCourse.shortName
+                    : newCourse.shortName
                 }
+                onChange={(e) => handleInputChange("shortName", e.target.value)}
                 className="border border-gray-400 p-2 rounded text-black"
               />
               <input
                 type="number"
                 placeholder="Credits"
-                value={newCourse.credits}
-                onChange={(e) =>
-                  setNewCourse({ ...newCourse, credits: e.target.value })
+                value={
+                  selectedCourse ? selectedCourse.credits : newCourse.credits
                 }
+                onChange={(e) => handleInputChange("credits", e.target.value)}
                 className="border border-gray-400 p-2 rounded text-black"
               />
               <select
-                value={newCourse.type}
-                onChange={(e) =>
-                  setNewCourse({ ...newCourse, type: e.target.value })
-                }
+                value={selectedCourse ? selectedCourse.type : newCourse.type}
+                onChange={(e) => handleInputChange("type", e.target.value)}
                 className="border border-gray-400 p-2 rounded text-black"
               >
                 <option value="THEORY">Theory</option>
@@ -353,9 +356,13 @@ const ViewCourses = () => {
                 <option value="PROJECT">Project</option>
               </select>
               <select
-                value={newCourse.department}
+                value={
+                  selectedCourse
+                    ? selectedCourse.department
+                    : newCourse.department
+                }
                 onChange={(e) =>
-                  setNewCourse({ ...newCourse, department: e.target.value })
+                  handleInputChange("department", e.target.value)
                 }
                 className="border border-gray-400 p-2 rounded text-black"
               >
@@ -367,10 +374,10 @@ const ViewCourses = () => {
                 ))}
               </select>
               <select
-                value={newCourse.semester}
-                onChange={(e) =>
-                  setNewCourse({ ...newCourse, semester: e.target.value })
+                value={
+                  selectedCourse ? selectedCourse.semester : newCourse.semester
                 }
+                onChange={(e) => handleInputChange("semester", e.target.value)}
                 className="border border-gray-400 p-2 rounded text-black"
               >
                 <option value="">Select Semester</option>
@@ -381,9 +388,13 @@ const ViewCourses = () => {
                 ))}
               </select>
               <select
-                value={newCourse.regulation}
+                value={
+                  selectedCourse
+                    ? selectedCourse.regulation
+                    : newCourse.regulation
+                }
                 onChange={(e) =>
-                  setNewCourse({ ...newCourse, regulation: e.target.value })
+                  handleInputChange("regulation", e.target.value)
                 }
                 className="border border-gray-400 p-2 rounded text-black"
               >
@@ -397,131 +408,19 @@ const ViewCourses = () => {
             </div>
             <div className="flex justify-end gap-2 mt-4">
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => {
+                  setShowModal(false);
+                  setSelectedCourse(null);
+                }}
                 className="bg-gray-400 px-4 py-2 rounded text-white hover:bg-gray-500 transition-colors"
               >
                 Cancel
               </button>
               <button
-                onClick={addCourse}
+                onClick={saveCourse}
                 className="bg-black px-4 py-2 rounded text-white hover:bg-gray-800 transition-colors"
               >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {/* Edit Course */}
-      {editCourse && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-[#F6F1E6] p-6 rounded shadow-md w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4 text-black">
-              Add Course
-            </h2>
-            <div className="flex flex-col gap-2">
-              <input
-                type="text"
-                placeholder="Course Code"
-                value={newCourse.courseCode}
-                onChange={(e) =>
-                  setNewCourse({ ...newCourse, courseCode: e.target.value })
-                }
-                className="border border-gray-400 p-2 rounded text-black"
-              />
-              <input
-                type="text"
-                placeholder="Name"
-                value={newCourse.name}
-                onChange={(e) =>
-                  setNewCourse({ ...newCourse, name: e.target.value })
-                }
-                className="border border-gray-400 p-2 rounded text-black"
-              />
-              <input
-                type="text"
-                placeholder="Short Name"
-                value={newCourse.shortName}
-                onChange={(e) =>
-                  setNewCourse({ ...newCourse, shortName: e.target.value })
-                }
-                className="border border-gray-400 p-2 rounded text-black"
-              />
-              <input
-                type="number"
-                placeholder="Credits"
-                value={newCourse.credits}
-                onChange={(e) =>
-                  setNewCourse({ ...newCourse, credits: e.target.value })
-                }
-                className="border border-gray-400 p-2 rounded text-black"
-              />
-              <select
-                value={newCourse.type}
-                onChange={(e) =>
-                  setNewCourse({ ...newCourse, type: e.target.value })
-                }
-                className="border border-gray-400 p-2 rounded text-black"
-              >
-                <option value="THEORY">Theory</option>
-                <option value="LAB">Lab</option>
-                <option value="PROJECT">Project</option>
-              </select>
-              <select
-                value={newCourse.department}
-                onChange={(e) =>
-                  setNewCourse({ ...newCourse, department: e.target.value })
-                }
-                className="border border-gray-400 p-2 rounded text-black"
-              >
-                <option value="">Select Department</option>
-                {availableBranches.map((branch) => (
-                  <option key={branch.id} value={branch.value}>
-                    {branch.label}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={newCourse.semester}
-                onChange={(e) =>
-                  setNewCourse({ ...newCourse, semester: e.target.value })
-                }
-                className="border border-gray-400 p-2 rounded text-black"
-              >
-                <option value="">Select Semester</option>
-                {availableSemesters.map((sem) => (
-                  <option key={sem.id} value={sem.value}>
-                    {sem.label}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={newCourse.regulation}
-                onChange={(e) =>
-                  setNewCourse({ ...newCourse, regulation: e.target.value })
-                }
-                className="border border-gray-400 p-2 rounded text-black"
-              >
-                <option value="">Select Regulation</option>
-                {availableRegulations.map((reg) => (
-                  <option key={reg.id} value={reg.value}>
-                    {reg.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex justify-end gap-2 mt-4">
-              <button
-                onClick={() => setEditCourse(false)}
-                className="bg-gray-400 px-4 py-2 rounded text-white hover:bg-gray-500 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={addCourse}
-                className="bg-black px-4 py-2 rounded text-white hover:bg-gray-800 transition-colors"
-              >
-                Save
+                {selectedCourse ? "Update" : "Save"}
               </button>
             </div>
           </div>
