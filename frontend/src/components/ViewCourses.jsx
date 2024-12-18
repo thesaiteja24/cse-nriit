@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import axios from "axios";
 
 const ViewCourses = () => {
+  const backend_url = import.meta.env.VITE_BACKEND_URL;
+
   const location = useLocation();
   const [semester, setSemester] = useState("");
   const [branch, setBranch] = useState("");
@@ -9,142 +12,177 @@ const ViewCourses = () => {
   const [courses, setCourses] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [flashMessage, setFlashMessage] = useState({ type: "", message: "" });
+  const [isLoading, setIsLoading] = useState(true);
 
-  // New state for dropdown options
+  // Dropdown options state
   const [availableSemesters, setAvailableSemesters] = useState([]);
   const [availableBranches, setAvailableBranches] = useState([]);
   const [availableRegulations, setAvailableRegulations] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // New course input state
+  // New course state with all required fields
   const [newCourse, setNewCourse] = useState({
     courseCode: "",
     name: "",
+    shortName: "",
     credits: "",
+    type: "THEORY", // Default value
     department: "",
     semester: "",
     regulation: "",
+    category: {},
   });
 
-  // Fetch dropdown options when component mounts
   useEffect(() => {
     fetchDropdownOptions();
   }, []);
 
   // Flash message timeout logic
   useEffect(() => {
-    if (location.state?.message) {
-      setFlashMessage({
-        type: location.state.type || "success",
-        message: location.state.message,
-      });
-
+    if (flashMessage.message) {
       const timer = setTimeout(() => {
         setFlashMessage({ type: "", message: "" });
       }, 5000);
 
       return () => clearTimeout(timer);
     }
-  }, [location.state]);
+  }, [flashMessage]);
 
-  // Function to fetch all dropdown options
   const fetchDropdownOptions = async () => {
     setIsLoading(true);
     try {
       const [semestersRes, branchesRes, regulationsRes] = await Promise.all([
-        fetch('/api/semesters'),
-        fetch('/api/branches'),
-        fetch('/api/regulations')
+        axios.get(`${backend_url}api/semesters`),
+        axios.get(`${backend_url}api/branches`),
+        axios.get(`${backend_url}api/regulations`),
       ]);
-
-      if (!semestersRes.ok || !branchesRes.ok || !regulationsRes.ok) {
-        throw new Error('Failed to fetch dropdown options');
-      }
-
-      const [semesters, branches, regulations] = await Promise.all([
-        semestersRes.json(),
-        branchesRes.json(),
-        regulationsRes.json()
-      ]);
-
-      setAvailableSemesters(semesters);
-      setAvailableBranches(branches);
-      setAvailableRegulations(regulations);
-
-      setFlashMessage({
-        type: "success",
-        message: "Dropdown options loaded successfully!"
-      });
+  
+      setAvailableSemesters(semestersRes.data); // axios responses have `.data`
+      setAvailableBranches(branchesRes.data);
+      setAvailableRegulations(regulationsRes.data);
     } catch (error) {
       console.error("Error fetching dropdown options:", error);
       setFlashMessage({
         type: "error",
-        message: "Failed to load dropdown options."
+        message: "Failed to load dropdown options.",
       });
     } finally {
       setIsLoading(false);
     }
   };
-
-  // Fetch courses from the backend
+  
   const fetchCourses = async () => {
+    if (!semester || !branch || !regulation) {
+      setFlashMessage({
+        type: "error",
+        message: "Please select all filters before viewing courses.",
+      });
+      return;
+    }
+
     try {
       const response = await fetch(
-        `/courses?semester=${semester}&branch=${branch}&regulation=${regulation}`
+        `/courses?semester=${encodeURIComponent(
+          semester
+        )}&branch=${encodeURIComponent(branch)}&regulation=${encodeURIComponent(
+          regulation
+        )}`
       );
+
       if (!response.ok) {
-        throw new Error('Failed to fetch courses');
+        throw new Error("Failed to fetch courses");
       }
-      const data = await response.json();
+
+      const { success, data, count } = await response.json();
+
+      if (!success) {
+        throw new Error("Failed to fetch courses");
+      }
+
       setCourses(data);
 
       setFlashMessage({
         type: "success",
-        message: "Courses fetched successfully!",
+        message: `Found ${count} courses`,
       });
     } catch (error) {
       console.error("Error fetching courses:", error);
       setFlashMessage({
         type: "error",
-        message: "Failed to fetch courses.",
+        message: error.message || "Failed to fetch courses.",
       });
     }
   };
 
-  // Add a new course
   const addCourse = async () => {
+    // Validate required fields
+    const requiredFields = [
+      "courseCode",
+      "name",
+      "credits",
+      "type",
+      "department",
+      "semester",
+      "regulation",
+    ];
+    const missingFields = requiredFields.filter((field) => !newCourse[field]);
+
+    if (missingFields.length > 0) {
+      setFlashMessage({
+        type: "error",
+        message: `Please fill in: ${missingFields.join(", ")}`,
+      });
+      return;
+    }
+
+    // Validate credits is a number
+    if (isNaN(newCourse.credits)) {
+      setFlashMessage({
+        type: "error",
+        message: "Credits must be a number",
+      });
+      return;
+    }
+
     try {
       const response = await fetch("/courses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newCourse),
+        body: JSON.stringify({
+          ...newCourse,
+          credits: Number(newCourse.credits),
+        }),
       });
-      
+
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to add course');
+        throw new Error(data.message || "Failed to add course");
       }
 
       setShowModal(false);
       setNewCourse({
         courseCode: "",
         name: "",
+        shortName: "",
         credits: "",
+        type: "THEORY",
         department: "",
         semester: "",
         regulation: "",
+        category: {},
       });
-      
-      fetchCourses();
+
+      await fetchCourses();
 
       setFlashMessage({
         type: "success",
-        message: "Course added successfully!",
+        message: data.message || "Course added successfully!",
       });
     } catch (error) {
       console.error("Error adding course:", error);
       setFlashMessage({
         type: "error",
-        message: "Failed to add course.",
+        message: error.message || "Failed to add course.",
       });
     }
   };
@@ -162,7 +200,7 @@ const ViewCourses = () => {
       {/* Navbar */}
       <div className="bg-[#F6F1E6] px-6 py-4 flex flex-col md:flex-row items-center justify-between shadow-md">
         <div className="flex gap-4 mb-2 md:mb-0">
-          {/* Semester Dropdown */}
+          {/* Dropdowns */}
           <select
             className="border border-gray-400 p-2 rounded bg-white text-black"
             value={semester}
@@ -176,7 +214,6 @@ const ViewCourses = () => {
             ))}
           </select>
 
-          {/* Branch Dropdown */}
           <select
             className="border border-gray-400 p-2 rounded bg-white text-black"
             value={branch}
@@ -190,7 +227,6 @@ const ViewCourses = () => {
             ))}
           </select>
 
-          {/* Regulation Dropdown */}
           <select
             className="border border-gray-400 p-2 rounded bg-white text-black"
             value={regulation}
@@ -205,7 +241,6 @@ const ViewCourses = () => {
           </select>
         </div>
 
-        {/* Buttons */}
         <div className="flex gap-4">
           <button
             onClick={fetchCourses}
@@ -241,20 +276,27 @@ const ViewCourses = () => {
               <tr>
                 <th className="p-2 border">Course Code</th>
                 <th className="p-2 border">Name</th>
+                <th className="p-2 border">Short Name</th>
                 <th className="p-2 border">Credits</th>
-                <th className="p-2 border">Semester</th>
+                <th className="p-2 border">Type</th>
                 <th className="p-2 border">Department</th>
+                <th className="p-2 border">Semester</th>
                 <th className="p-2 border">Regulation</th>
               </tr>
             </thead>
             <tbody>
-              {courses.map((course, index) => (
-                <tr key={index} className="text-center hover:bg-gray-100 transition-colors">
+              {courses.map((course) => (
+                <tr
+                  key={course._id}
+                  className="text-center hover:bg-gray-100 transition-colors"
+                >
                   <td className="p-2 border">{course.courseCode}</td>
                   <td className="p-2 border">{course.name}</td>
+                  <td className="p-2 border">{course.shortName}</td>
                   <td className="p-2 border">{course.credits}</td>
-                  <td className="p-2 border">{course.semester}</td>
+                  <td className="p-2 border">{course.type}</td>
                   <td className="p-2 border">{course.department}</td>
+                  <td className="p-2 border">{course.semester}</td>
                   <td className="p-2 border">{course.regulation}</td>
                 </tr>
               ))}
@@ -273,18 +315,95 @@ const ViewCourses = () => {
               Add Course
             </h2>
             <div className="flex flex-col gap-2">
-              {Object.keys(newCourse).map((key) => (
-                <input
-                  key={key}
-                  type="text"
-                  placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
-                  value={newCourse[key]}
-                  onChange={(e) =>
-                    setNewCourse({ ...newCourse, [key]: e.target.value })
-                  }
-                  className="border border-gray-400 p-2 rounded text-black"
-                />
-              ))}
+              <input
+                type="text"
+                placeholder="Course Code"
+                value={newCourse.courseCode}
+                onChange={(e) =>
+                  setNewCourse({ ...newCourse, courseCode: e.target.value })
+                }
+                className="border border-gray-400 p-2 rounded text-black"
+              />
+              <input
+                type="text"
+                placeholder="Name"
+                value={newCourse.name}
+                onChange={(e) =>
+                  setNewCourse({ ...newCourse, name: e.target.value })
+                }
+                className="border border-gray-400 p-2 rounded text-black"
+              />
+              <input
+                type="text"
+                placeholder="Short Name"
+                value={newCourse.shortName}
+                onChange={(e) =>
+                  setNewCourse({ ...newCourse, shortName: e.target.value })
+                }
+                className="border border-gray-400 p-2 rounded text-black"
+              />
+              <input
+                type="number"
+                placeholder="Credits"
+                value={newCourse.credits}
+                onChange={(e) =>
+                  setNewCourse({ ...newCourse, credits: e.target.value })
+                }
+                className="border border-gray-400 p-2 rounded text-black"
+              />
+              <select
+                value={newCourse.type}
+                onChange={(e) =>
+                  setNewCourse({ ...newCourse, type: e.target.value })
+                }
+                className="border border-gray-400 p-2 rounded text-black"
+              >
+                <option value="THEORY">Theory</option>
+                <option value="LAB">Lab</option>
+                <option value="PROJECT">Project</option>
+              </select>
+              <select
+                value={newCourse.department}
+                onChange={(e) =>
+                  setNewCourse({ ...newCourse, department: e.target.value })
+                }
+                className="border border-gray-400 p-2 rounded text-black"
+              >
+                <option value="">Select Department</option>
+                {availableBranches.map((branch) => (
+                  <option key={branch.id} value={branch.value}>
+                    {branch.label}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={newCourse.semester}
+                onChange={(e) =>
+                  setNewCourse({ ...newCourse, semester: e.target.value })
+                }
+                className="border border-gray-400 p-2 rounded text-black"
+              >
+                <option value="">Select Semester</option>
+                {availableSemesters.map((sem) => (
+                  <option key={sem.id} value={sem.value}>
+                    {sem.label}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={newCourse.regulation}
+                onChange={(e) =>
+                  setNewCourse({ ...newCourse, regulation: e.target.value })
+                }
+                className="border border-gray-400 p-2 rounded text-black"
+              >
+                <option value="">Select Regulation</option>
+                {availableRegulations.map((reg) => (
+                  <option key={reg.id} value={reg.value}>
+                    {reg.label}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="flex justify-end gap-2 mt-4">
               <button

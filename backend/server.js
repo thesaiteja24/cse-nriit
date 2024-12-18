@@ -8,7 +8,8 @@ const MongoStore = require("connect-mongo");
 const cors = require("cors");
 const connectDB = require("./config/db");
 const configurePassport = require("./config/passport");
-const userRoutes = require("./routes/user");
+const userRoutes = require("./routes/userRoutes");
+const courseRoutes = require("./routes/courseRoutes");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -69,6 +70,7 @@ configurePassport(app);
 
 // Routes
 app.use("/", userRoutes);
+app.use("/", courseRoutes);
 
 // Error handling
 app.use((err, req, res, next) => {
