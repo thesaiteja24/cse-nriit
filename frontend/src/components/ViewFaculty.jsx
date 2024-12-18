@@ -68,6 +68,13 @@ const ViewFaculty = () => {
   };
 
   const fetchFaculty = async () => {
+    if (!semester || !branch || !regulation) {
+        setFlashMessage({
+          type: "error",
+          message: "Please select all filters before viewing Faculty.",
+        });
+        return;
+      }
     try {
       const response = await fetch(
         `/faculty?semester=${semester}&branch=${branch}&regulation=${regulation}`
@@ -112,18 +119,7 @@ const ViewFaculty = () => {
     <div className="bg-[#EDE6DA] min-h-screen font-sans relative">
       <div className="bg-[#F6F1E6] px-6 py-4 flex flex-col md:flex-row items-center justify-between shadow-md">
         <div className="flex gap-4 mb-2 md:mb-0">
-          <select
-            className="border border-gray-400 p-2 rounded bg-white text-black"
-            value={semester}
-            onChange={(e) => setSemester(e.target.value)}
-          >
-            <option value="">Select Semester</option>
-            {availableSemesters.map((sem) => (
-              <option key={sem.id} value={sem.value}>
-                {sem.label}
-              </option>
-            ))}
-          </select>
+          
 
           <select
             className="border border-gray-400 p-2 rounded bg-white text-black"
@@ -138,18 +134,7 @@ const ViewFaculty = () => {
             ))}
           </select>
 
-          <select
-            className="border border-gray-400 p-2 rounded bg-white text-black"
-            value={regulation}
-            onChange={(e) => setRegulation(e.target.value)}
-          >
-            <option value="">Select Regulation</option>
-            {availableRegulations.map((reg) => (
-              <option key={reg.id} value={reg.value}>
-                {reg.label}
-              </option>
-            ))}
-          </select>
+          
         </div>
 
         <div className="flex gap-4">
@@ -177,7 +162,31 @@ const ViewFaculty = () => {
           {flashMessage.message}
         </div>
       )}
-      <div className="bg-[#F6F1E6] p-6 rounded shadow-md w-full border border-black">
+      <div className="flex gap-4 mb-2 md:mb-0 #EDE6DA p-6 rounded ">
+      <select
+            className="border border-gray-400 p-2 rounded bg-white text-black"
+            value={semester}
+            onChange={(e) => setSemester(e.target.value)}
+          >
+            <option value="">Select Semester</option>
+            {availableSemesters.map((sem) => (
+              <option key={sem.id} value={sem.value}>
+                {sem.label}
+              </option>
+            ))}
+          </select>
+          <select
+            className="border border-gray-400 p-2 rounded bg-white text-black"
+            value={regulation}
+            onChange={(e) => setRegulation(e.target.value)}
+          >
+            <option value="">Select Regulation</option>
+            {availableRegulations.map((reg) => (
+              <option key={reg.id} value={reg.value}>
+                {reg.label}
+              </option>
+            ))}
+          </select>
       <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300">
   Load Courses
 </button>
