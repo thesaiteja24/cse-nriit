@@ -6,15 +6,13 @@ const courseController = require('../controllers/courseController');
 router.get('/api/semesters', courseController.getSemesters);
 router.get('/api/branches', courseController.getBranches);
 router.get('/api/regulations', courseController.getRegulations);
-router.get('/api/courses',courseController.getCourses)
-router.get('/api/courses', courseController.addCourse)
 
 
 // Course CRUD operations
-router.get('/courses', courseController.getCourses);
-router.post('/courses', courseController.addCourse);
-router.put('/courses/:id', courseController.updateCourse);
-router.delete('/courses/:id', courseController.deleteCourse);
+router.get('/courses', courseController.getCourses); // Get courses based on filters
+router.post('/courses', courseController.addCourse); // Adding new course
+router.put('/courses/:id', courseController.updateCourse); // Updating existing course
+router.delete('/courses/:id', courseController.deleteCourse); // Deleting existing course
 
 
 
