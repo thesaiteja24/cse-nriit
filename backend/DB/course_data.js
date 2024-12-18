@@ -1,5 +1,5 @@
 const data = [
-    {
+  {
       courseCode: "ML101",
       name: "Machine Learning",
       shortName: "ML",
@@ -9,8 +9,8 @@ const data = [
       semester: "3-2",
       regulation: "NRIA 20",
       category: { isLab: false },
-    },
-    {
+  },
+  {
       courseCode: "CD101",
       name: "Compiler Design",
       shortName: "CD",
@@ -20,8 +20,8 @@ const data = [
       semester: "3-2",
       regulation: "NRIA 20",
       category: { isLab: false },
-    },
-    {
+  },
+  {
       courseCode: "CNS101",
       name: "Cryptography and Network Security",
       shortName: "CNS",
@@ -31,8 +31,8 @@ const data = [
       semester: "3-2",
       regulation: "NRIA 20",
       category: { isLab: false },
-    },
-    {
+  },
+  {
       courseCode: "OE201",
       name: "OE2: Image Processing",
       shortName: "IP",
@@ -42,8 +42,8 @@ const data = [
       semester: "3-2",
       regulation: "NRIA 20",
       category: { isLab: false },
-    },
-    {
+  },
+  {
       courseCode: "PE201",
       name: "PE2: Big Data Analytics",
       shortName: "BDA",
@@ -53,8 +53,8 @@ const data = [
       semester: "3-2",
       regulation: "NRIA 20",
       category: { isLab: false },
-    },
-    {
+  },
+  {
       courseCode: "ML102",
       name: "Machine Learning Lab",
       shortName: "ML Lab",
@@ -64,8 +64,8 @@ const data = [
       semester: "3-2",
       regulation: "NRIA 20",
       category: { isLab: true },
-    },
-    {
+  },
+  {
       courseCode: "CD102",
       name: "Compiler Design Lab",
       shortName: "CD Lab",
@@ -75,8 +75,8 @@ const data = [
       semester: "3-2",
       regulation: "NRIA 20",
       category: { isLab: true },
-    },
-    {
+  },
+  {
       courseCode: "RP101",
       name: "R Programming Lab",
       shortName: "RPL",
@@ -86,8 +86,8 @@ const data = [
       semester: "3-2",
       regulation: "NRIA 20",
       category: { isLab: true },
-    },
-    {
+  },
+  {
       courseCode: "MSTL101",
       name: "Mean Stack Technology Lab",
       shortName: "MST Lab",
@@ -97,8 +97,8 @@ const data = [
       semester: "3-2",
       regulation: "NRIA 20",
       category: { isLab: true },
-    },
-    {
+  },
+  {
       courseCode: "ES201",
       name: "Employability Skills-2",
       shortName: "ES2",
@@ -108,8 +108,8 @@ const data = [
       semester: "3-2",
       regulation: "NRIA 20",
       category: { isLab: false },
-    },
-    {
+  },
+  {
       courseCode: "CPT101",
       name: "CPT",
       shortName: "CPT",
@@ -119,8 +119,85 @@ const data = [
       semester: "3-2",
       regulation: "NRIA 20",
       category: { isLab: true },
-    },
-  ];
-  
-  module.exports = { data };
-  
+  },
+  // Additional courses for 3-1 semester
+  {
+      courseCode: "20A3105401",
+      name: "Artificial Intelligence",
+      shortName: "AI",
+      credits: 3,
+      type: "THEORY",
+      department: "CSE",
+      semester: "3-1",
+      regulation: "NRIA 20",
+      category: { isLab: false },
+  },
+  {
+      courseCode: "20A3105402",
+      name: "Computer Networks",
+      shortName: "CN",
+      credits: 3,
+      type: "THEORY",
+      department: "CSE",
+      semester: "3-1",
+      regulation: "NRIA 20",
+      category: { isLab: false },
+  },
+  {
+      courseCode: "20A3105403",
+      name: "Design and Analysis of Algorithms",
+      shortName: "DAA",
+      credits: 3,
+      type: "THEORY",
+      department: "CSE",
+      semester: "3-1",
+      regulation: "NRIA 20",
+      category: { isLab: false },
+  },
+  {
+      courseCode: "28A3104601",
+      name: "Microprocessor and Applications",
+      shortName: "MPA",
+      credits: 3,
+      type: "THEORY",
+      department: "CSE",
+      semester: "3-1",
+      regulation: "NRIA 20",
+      category: { isLab: false },
+  },
+  {
+      courseCode: "20A1105491",
+      name: "Computer Networks Lab",
+      shortName: "CN Lab",
+      credits: 2,
+      type: "LAB",
+      department: "CSE",
+      semester: "3-1",
+      regulation: "NRIA 20",
+      category: { isLab: true },
+  },
+  {
+      courseCode: "20A3105492",
+      name: "AI Programming Lab",
+      shortName: "AI Lab",
+      credits: 2,
+      type: "LAB",
+      department: "CSE",
+      semester: "3-1",
+      regulation: "NRIA 20",
+      category: { isLab: true },
+  },
+  {
+      courseCode: "20A3105991",
+      name: "DevOps Lab",
+      shortName: "DevOps Lab",
+      credits: 2,
+      type: "LAB",
+      department: "CSE",
+      semester: "3-1",
+      regulation: "NRIA 20",
+      category: { isLab: true },
+  },
+];
+
+module.exports = { data };

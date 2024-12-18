@@ -55,7 +55,7 @@ const ViewCourses = () => {
         axios.get(`${backend_url}api/branches`),
         axios.get(`${backend_url}api/regulations`),
       ]);
-  
+
       setAvailableSemesters(semestersRes.data); // axios responses have `.data`
       setAvailableBranches(branchesRes.data);
       setAvailableRegulations(regulationsRes.data);
@@ -69,7 +69,7 @@ const ViewCourses = () => {
       setIsLoading(false);
     }
   };
-  
+
   const fetchCourses = async () => {
     if (!semester || !branch || !regulation) {
       setFlashMessage({
@@ -80,29 +80,23 @@ const ViewCourses = () => {
     }
 
     try {
-      const response = await fetch(
-        `/courses?semester=${encodeURIComponent(
-          semester
-        )}&branch=${encodeURIComponent(branch)}&regulation=${encodeURIComponent(
-          regulation
-        )}`
-      );
+      const response = await axios.get(`${backend_url}api/courses`, {
+        params: {
+          semester: semester,
+          branch: branch,
+          regulation: regulation,
+        },
+      });
 
-      if (!response.ok) {
+      console.log(response);
+      if (!response.data.success) {
         throw new Error("Failed to fetch courses");
       }
 
-      const { success, data, count } = await response.json();
-
-      if (!success) {
-        throw new Error("Failed to fetch courses");
-      }
-
-      setCourses(data);
-
+      setCourses(response.data.data);
       setFlashMessage({
         type: "success",
-        message: `Found ${count} courses`,
+        message: `Found ${response.data.count} courses`,
       });
     } catch (error) {
       console.error("Error fetching courses:", error);
@@ -114,7 +108,6 @@ const ViewCourses = () => {
   };
 
   const addCourse = async () => {
-    // Validate required fields
     const requiredFields = [
       "courseCode",
       "name",
@@ -134,7 +127,6 @@ const ViewCourses = () => {
       return;
     }
 
-    // Validate credits is a number
     if (isNaN(newCourse.credits)) {
       setFlashMessage({
         type: "error",
@@ -144,19 +136,13 @@ const ViewCourses = () => {
     }
 
     try {
-      const response = await fetch("/courses", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...newCourse,
-          credits: Number(newCourse.credits),
-        }),
+      const response = await axios.post(`${backend_url}api/courses`, {
+        ...newCourse,
+        credits: Number(newCourse.credits),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to add course");
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Failed to add course");
       }
 
       setShowModal(false);
@@ -173,10 +159,9 @@ const ViewCourses = () => {
       });
 
       await fetchCourses();
-
       setFlashMessage({
         type: "success",
-        message: data.message || "Course added successfully!",
+        message: response.data.message || "Course added successfully!",
       });
     } catch (error) {
       console.error("Error adding course:", error);
