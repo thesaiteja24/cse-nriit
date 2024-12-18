@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const initData = require("./course_data.js"); // Import course data
-const Course = require("../models/Course"); // Import Course model
+const Course = require("../models/course"); // Import Course model
 require("dotenv").config({ path: "../.env" }); // Load environment variables
 
 const dbUrl = process.env.ATLAS_DB_URL; // MongoDB Atlas URL
