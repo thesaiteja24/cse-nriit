@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
-const initData = require("./course_data.js"); // Import course data
-const Course = require("../models/course"); // Import Course model
+const initData = require("./facultyData"); // Import course data
+const Faculty = require("../models/facultyModel"); // Import Course model
 require("dotenv").config({ path: "../.env" }); // Load environment variables
 
-const dbUrl = process.env.ATLAS_DB_URL; // MongoDB Atlas URL
+const dbUrl = process.env.ATLAS_DB_URL;
 
 main()
   .then(() => {
@@ -14,7 +14,6 @@ main()
     console.error("Error connecting to DB:", err);
   });
 
-// Function to connect to the MongoDB database
 async function main() {
   if (!dbUrl) {
     console.error("Error: ATLASDB_URL not found in environment variables.");
@@ -23,15 +22,14 @@ async function main() {
   await mongoose.connect(dbUrl);
 }
 
-// Function to initialize the database with new data
 const initDB = async () => {
   try {
     // Clear existing data
-    await Course.deleteMany({});
+    await Faculty.deleteMany({});
     console.log("Courses collection cleared.");
 
     // Insert new data
-    await Course.insertMany(initData.data);
+    await Faculty.insertMany(initData.data);
     console.log("Sample course data initialized successfully.");
   } catch (error) {
     console.error("Failed to initialize data:", error);
