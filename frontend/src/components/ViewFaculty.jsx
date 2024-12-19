@@ -24,11 +24,8 @@ const ViewFaculty = () => {
   const [newFaculty, setNewFaculty] = useState({
     name: "",
     department: "",
-    contactNumber: "",
+    contact: "",
   });
-
-
-  
 
   useEffect(() => {
     fetchDropdownOptions();
@@ -61,7 +58,7 @@ const ViewFaculty = () => {
       setAvailableBranches(branchesRes.data);
       setAvailableRegulations(regulationsRes.data);
     } catch (error) {
-        console.error("Error fetching dropdown options:", error);
+      console.error("Error fetching dropdown options:", error);
       setFlashMessage({
         type: "error",
         message: "Failed to load dropdown options.",
@@ -72,69 +69,69 @@ const ViewFaculty = () => {
   };
 
   const fetchFaculty = async () => {
-    if (!semester || !branch || !regulation) {
-        setFlashMessage({
-          type: "error",
-          message: "Please select all filters before viewing Faculty.",
-        });
-        return;
+    if (!branch) {
+      setFlashMessage({
+        type: "error",
+        message: "Please select a valid branch.",
+      });
+      return;
+    }
+    try {
+      const response = await axios.get(`${backend_url}api/faculty`, {
+        params: { department: branch },
+      });
+
+      if (!response.data.success) {
+        throw new Error("Failed to fetch Faculty");
       }
-      try {
-        const response = await axios.get(`${backend_url}faculty`, {
-          params: { semester, branch, regulation },
-        });
-  
-        if (!response.data.success) {
-          throw new Error("Failed to fetch Faculty");
-        }
-  
-        setFaculty(response.data.data);
-        setFlashMessage({
-          type: "success",
-          message: `Found ${response.data.count} faculty`,
-        });
-      } catch (error) {
-        console.error("Error fetching faculty:", error);
-        setFlashMessage({
-          type: "error",
-          message: error.message || "Failed to fetch faculty.",
-        });
-      }
+
+      setFaculty(response.data.data);
+      setFlashMessage({
+        type: "success",
+        message: `Found ${response.data.count} faculty`,
+      });
+    } catch (error) {
+      console.error("Error fetching faculty:", error);
+      setFlashMessage({
+        type: "error",
+        message: error.message || "Failed to fetch faculty.",
+      });
+    }
   };
 
   const saveFaculty = async () => {
     try {
-        const url = selectedFaculty
-          ? `${backend_url}faculty/${selectedFaculty._id}`
-          : `${backend_url}faculty`;
-        const method = selectedFaculty ? "put" : "post";
-  
-        const response = await axios[method](url, selectedFaculty || newFaculty);
-  
-        if (!response.data.success) {
-          throw new Error(response.data.message || "Failed to save Faculty");
-        }
-  
-        setShowModal(false);
-        setSelectedFaculty(null);
-        fetchFaculty();
-  
-        setFlashMessage({
-          type: "success",
-          message: response.data.message || "Faculty saved successfully!",
-        });
-      } catch (error) {
-        console.error("Error saving Faculty:", error);
-        setFlashMessage({
-          type: "error",
-          message: error.message || "Failed to save Faculty.",
-        });
+      const url = selectedFaculty
+        ? `${backend_url}faculty/${selectedFaculty._id}`
+        : `${backend_url}faculty`;
+      const method = selectedFaculty ? "put" : "post";
+
+      const response = await axios[method](url, selectedFaculty || newFaculty);
+
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Failed to save Faculty");
       }
+
+      setShowModal(false);
+      setSelectedFaculty(null);
+      fetchFaculty();
+
+      setFlashMessage({
+        type: "success",
+        message: response.data.message || "Faculty saved successfully!",
+      });
+    } catch (error) {
+      console.error("Error saving Faculty:", error);
+      setFlashMessage({
+        type: "error",
+        message: error.message || "Failed to save Faculty.",
+      });
+    }
   };
 
-
   const deleteFaculty = async (facultyId) => {
-    if (!window.confirm("Are you sure you want to delete this Faculty?")) return;
+    if (!window.confirm("Are you sure you want to delete this Faculty?"))
+      return;
 
     try {
       const response = await axios.delete(`${backend_url}faculty/${facultyId}`);
@@ -164,12 +161,13 @@ const ViewFaculty = () => {
   };
 
   const handleInputChange = (key, value) => {
-    const updated = selectedFaculty ? { ...selectedFaculty } : { ...newFaculty };
+    const updated = selectedFaculty
+      ? { ...selectedFaculty }
+      : { ...newFaculty };
     updated[key] = value;
     if (selectedFaculty) setSelectedFaculty(updated);
     else setNewFaculty(updated);
   };
-
 
   return (
     <>
@@ -180,7 +178,6 @@ const ViewFaculty = () => {
       <div className="bg-[#EDE6DA] min-h-screen font-sans relative">
         <div className="bg-[#F6F1E6] px-6 py-4 flex flex-col md:flex-row items-center justify-between shadow-md">
           <div className="flex gap-4 mb-2 md:mb-0">
-
             <select
               className="border border-gray-400 p-2 rounded bg-white text-black"
               value={branch}
@@ -211,7 +208,7 @@ const ViewFaculty = () => {
           </div>
         </div>
 
-         {/* Flash Message */}      
+        {/* Flash Message */}
         {flashMessage.message && (
           <div
             className={`fixed bottom-4 left-4 z-50 p-4 rounded-lg text-white ${
@@ -222,30 +219,30 @@ const ViewFaculty = () => {
           </div>
         )}
         <div className="flex gap-4 mb-2 md:mb-0 bg-[#EDE6DA] p-6 ">
-        <select
-              className="border border-gray-400 p-2 rounded bg-white text-black"
-              value={semester}
-              onChange={(e) => setSemester(e.target.value)}
-            >
-              <option value="">Select Semester</option>
-              {availableSemesters.map((sem) => (
-                <option key={sem.id} value={sem.value}>
-                  {sem.label}
-                </option>
-              ))}
-            </select>
-            <select
-              className="border border-gray-400 p-2 rounded bg-white text-black"
-              value={regulation}
-              onChange={(e) => setRegulation(e.target.value)}
-            >
-              <option value="">Select Regulation</option>
-              {availableRegulations.map((reg) => (
-                <option key={reg.id} value={reg.value}>
-                  {reg.label}
-                </option>
-              ))}
-            </select>
+          <select
+            className="border border-gray-400 p-2 rounded bg-white text-black"
+            value={semester}
+            onChange={(e) => setSemester(e.target.value)}
+          >
+            <option value="">Select Semester</option>
+            {availableSemesters.map((sem) => (
+              <option key={sem.id} value={sem.value}>
+                {sem.label}
+              </option>
+            ))}
+          </select>
+          <select
+            className="border border-gray-400 p-2 rounded bg-white text-black"
+            value={regulation}
+            onChange={(e) => setRegulation(e.target.value)}
+          >
+            <option value="">Select Regulation</option>
+            {availableRegulations.map((reg) => (
+              <option key={reg.id} value={reg.value}>
+                {reg.label}
+              </option>
+            ))}
+          </select>
           <button class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition duration-300">
             Load Faculty
           </button>
@@ -265,14 +262,18 @@ const ViewFaculty = () => {
                 </tr>
               </thead>
               <tbody>
-                {faculties.map((faculty) => (
+                {faculty.map((faculty) => (
                   <tr
                     key={faculty._id}
                     className="text-center hover:bg-gray-100"
                   >
                     <td className="p-2 border">{faculty.name}</td>
                     <td className="p-2 border">{faculty.department}</td>
-                    <td className="p-2 border">{faculty.contactNumber}</td>
+                    <td className="p-2 border">
+                      {faculty.contact.length == 2
+                        ? `${faculty.contact[0]}, ${faculty.contact[1]}`
+                        : faculty.contact[0]}
+                    </td>
 
                     <td className="p-2 border">
                       <button
@@ -294,13 +295,10 @@ const ViewFaculty = () => {
                 ))}
               </tbody>
             </table>
-          ) 
-          : (
+          ) : (
             <p className="text-center text-gray-500">No Faculty to display</p>
           )}
         </div>
-
-        
 
         {/* <div className="p-6">
           {faculty.length > 0 ? (
@@ -341,11 +339,13 @@ const ViewFaculty = () => {
                 <input
                   type="text"
                   placeholder="Name"
-                  value={selectedFaculty ? selectedFaculty.name : newFaculty.name}
+                  value={
+                    selectedFaculty ? selectedFaculty.name : newFaculty.name
+                  }
                   onChange={(e) => handleInputChange("name", e.target.value)}
                   className="border border-gray-400 p-2 rounded text-black"
                 />
-                
+
                 {/* department */}
                 <select
                   value={
@@ -365,19 +365,19 @@ const ViewFaculty = () => {
                     </option>
                   ))}
                 </select>
-                
+
                 {/* contact Number  */}
                 <input
                   type="tel"
                   placeholder="Contact Number"
-                  pattern="[0-9]{10}"
                   value={
-                    selectedFaculty ? selectedFaculty.credits : newFaculty.credits
+                    selectedFaculty
+                      ? selectedFaculty.contact
+                      : newFaculty.contact
                   }
-                  onChange={(e) => handleInputChange("credits", e.target.value)}
+                  onChange={(e) => handleInputChange("contact", e.target.value)}
                   className="border border-gray-400 p-2 rounded text-black"
                 />
-        
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button
