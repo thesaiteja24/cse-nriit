@@ -1,5 +1,5 @@
 const passport = require("passport");
-const User = require("../models/user");
+const User = require("../models/userModel");
 
 module.exports = function configurePassport(app) {
   app.use(passport.initialize());
