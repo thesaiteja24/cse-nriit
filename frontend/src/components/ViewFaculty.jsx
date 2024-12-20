@@ -214,35 +214,6 @@ const ViewFaculty = () => {
             {flashMessage.message}
           </div>
         )}
-        <div className="flex gap-4 mb-2 md:mb-0 bg-[#EDE6DA] p-6 ">
-          <select
-            className="border border-gray-400 p-2 rounded bg-white text-black"
-            value={semester}
-            onChange={(e) => setSemester(e.target.value)}
-          >
-            <option value="">Select Semester</option>
-            {availableSemesters.map((sem) => (
-              <option key={sem.id} value={sem.value}>
-                {sem.label}
-              </option>
-            ))}
-          </select>
-          <select
-            className="border border-gray-400 p-2 rounded bg-white text-black"
-            value={regulation}
-            onChange={(e) => setRegulation(e.target.value)}
-          >
-            <option value="">Select Regulation</option>
-            {availableRegulations.map((reg) => (
-              <option key={reg.id} value={reg.value}>
-                {reg.label}
-              </option>
-            ))}
-          </select>
-          <button class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition duration-300">
-            Load Faculty
-          </button>
-        </div>
 
         {/* Faculty Table */}
         <div className="p-6">
@@ -265,11 +236,7 @@ const ViewFaculty = () => {
                   >
                     <td className="p-2 border">{faculty.name}</td>
                     <td className="p-2 border">{faculty.department}</td>
-                    <td className="p-2 border">
-                      {faculty.contact.length == 2
-                        ? `${faculty.contact[0]}, ${faculty.contact[1]}`
-                        : faculty.contact[0]}
-                    </td>
+                    <td className="p-2 border">{faculty.contact[0]}</td>
 
                     <td className="p-2 border">
                       <button
