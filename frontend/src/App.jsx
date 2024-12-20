@@ -12,6 +12,7 @@ import LandingPage from "./components/LandingPage";
 import ViewCourses from "./components/ViewCourses";
 import ViewFaculty from "./components/ViewFaculty";
 import AssignFaculty from "./components/assignFaculty";
+import CardComponent from "./components/cardComponent";
 function Navigation() {
   const location = useLocation();
 
@@ -68,6 +69,7 @@ export default function App() {
           <Route path="/courses" element={<ViewCourses />} />
           <Route path="/faculty" element={<ViewFaculty />} />
           <Route path="/assignFaculty" element={<AssignFaculty />}></Route>
+          <Route path="/card" element={<CardComponent/>} />
         </Routes>
       </div>
     </Router>
