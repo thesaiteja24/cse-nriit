@@ -32,18 +32,14 @@ const ViewFaculty = () => {
   }, []);
 
   useEffect(() => {
-    if (location.state?.message) {
-      setFlashMessage({
-        type: location.state.type || "success",
-        message: location.state.message,
-      });
-
+    if (flashMessage.message) {
       const timer = setTimeout(() => {
         setFlashMessage({ type: "", message: "" });
       }, 5000);
+
       return () => clearTimeout(timer);
     }
-  }, [location.state]);
+  }, [flashMessage]);
 
   const fetchDropdownOptions = async () => {
     setIsLoading(true);
