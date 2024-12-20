@@ -14,24 +14,24 @@ const data = [
   { name: "Mrs. S. Sindhura", contact: [8523876340], department: "CSE" },
   {
     name: "Mr. B. Venugopal",
-    contact: [9848034993, 9392266198],
+    contact: [9848034993],
     department: "CSE",
   },
   {
     name: "Mrs. R. Rama Devi",
-    contact: [9603104355, 8247567476],
+    contact: [9603104355],
     department: "CSE",
   },
   {
     name: "Mr. A. Tarak Ram",
-    contact: [8106356348, 9490299220],
+    contact: [8106356348],
     department: "CSE",
   },
   { name: "S. Nahida", contact: [9441343486], department: "CSE" },
   { name: "Dr. K. V. Sambasiva Rao", contact: [9440115556], department: "CSE" },
   {
     name: "Mr. N. V. Satayanarayana",
-    contact: [7013426693, 9885190561],
+    contact: [7013426693],
     department: "CSE",
   },
   { name: "Mr. Raj Sagar", contact: [9305463512], department: "CSE" },
