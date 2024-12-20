@@ -11,6 +11,7 @@ import Register from "./components/Register";
 import LandingPage from "./components/LandingPage";
 import ViewCourses from "./components/ViewCourses";
 import ViewFaculty from "./components/ViewFaculty";
+import CardComponent from "./components/cardComponent";
 function Navigation() {
   const location = useLocation();
 
@@ -53,6 +54,7 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/courses" element={<ViewCourses />} />
           <Route path="/faculty" element={<ViewFaculty />} />
+          <Route path="/card" element={<CardComponent/>} />
         </Routes>
       </div>
     </Router>

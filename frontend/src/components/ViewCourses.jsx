@@ -338,12 +338,8 @@ const ViewCourses = () => {
                 />
                 <input
                   type="text"
-                  placeholder="Short Name"
-                  value={
-                    selectedCourse
-                      ? selectedCourse.shortName
-                      : newCourse.shortName
-                  }
+                  placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
+                  value={newCourse[key]}
                   onChange={(e) =>
                     handleInputChange("shortName", e.target.value)
                   }
