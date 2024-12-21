@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function CardComponent({ id, name, courseCode, type, onDelete, onEdit }) {
+function CardComponent({ id, name, contact, type, onDelete, onEdit }) {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
   const toggleDropdown = (e) => {
@@ -21,61 +21,61 @@ function CardComponent({ id, name, courseCode, type, onDelete, onEdit }) {
 
   return (
     <div
-      className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 p-4 m-2"
-      onClick={hideDropdown}
+    className="flex justify-evenly w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-200 dark:border-gray-700 p-4 m-2"
+    onClick={hideDropdown}
     >
+      <div className="flex flex-col items-start mt-4">
+        <h5 className="mb-1 text-lg font-medium text-gray-900 dark:text-black">Name: {name}</h5>
+        <span className="text-sm text-gray-500 dark:text-black">Contact Number: {contact}</span>
+
+      </div>
       <div className="flex justify-end">
-        <button
-          onClick={toggleDropdown}
-          className="inline-block text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-1.5"
-          type="button"
-        >
-          <span className="sr-only">Open dropdown</span>
-          <svg
-            className="w-5 h-5"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 16 3"
-          >
-            <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z" />
-          </svg>
-        </button>
-        {isDropdownVisible && (
-          <div className="z-10 absolute mt-2 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
-            <ul className="py-2">
-              <li>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit(id);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                >
-                  Edit
-                </button>
-              </li>
-              <li>
-              <button
+  <button
+    onClick={toggleDropdown}
+    className="text-gray-500 dark:text-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg"
+    type="button"
+  >
+    <span className="sr-only">Open dropdown</span>
+    <svg
+      className="w-5 h-5 hover:text-gray-700 dark:hover:text-white"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 16 3"
+    >
+      <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z" />
+    </svg>
+  </button>
+  {isDropdownVisible && (
+    <div className="z-10 absolute mt-2 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+      <ul className="py-2">
+        <li>
+          <button
             onClick={(e) => {
-                e.stopPropagation();
-                onDelete(id);
+              e.stopPropagation();
+              onEdit(id);
             }}
             className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-            >
+          >
+            Edit
+          </button>
+        </li>
+        <li>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(id);
+            }}
+            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+          >
             Delete
-            </button>
+          </button>
+        </li>
+      </ul>
+    </div>
+  )}
+</div>
 
-              </li>
-            </ul>
-          </div>
-        )}
-      </div>
-      <div className="flex flex-col items-start mt-4">
-        <h5 className="mb-1 text-lg font-medium text-gray-900 dark:text-white">Name: {name}</h5>
-        <span className="text-sm text-gray-500 dark:text-gray-400">Course Code: {courseCode}</span>
-        <span className="text-sm text-gray-500 dark:text-gray-400">Type: {type}</span>
-      </div>
     </div>
   );
 }
@@ -89,13 +89,11 @@ function CardGrid({ cards, setCards }) {
     const updatedCards = cards.map((card) => {
       if (card.id === id) {
         const updatedName = prompt('Enter new name:', card.name);
-        const updatedCourseCode = prompt('Enter new course code:', card.courseCode);
-        const updatedType = prompt('Enter new type:', card.type);
+        const updatedcontact = prompt('Enter new course code:', card.contact);
         return {
           ...card,
           name: updatedName || card.name,
-          courseCode: updatedCourseCode || card.courseCode,
-          type: updatedType || card.type,
+          contact: updatedcontact || card.contact,
         };
       }
       return card;
@@ -110,8 +108,7 @@ function CardGrid({ cards, setCards }) {
           key={card.id}
           id={card.id}
           name={card.name}
-          courseCode={card.courseCode}
-          type={card.type}
+          contact={card.contact}
           onDelete={handleDelete}
           onEdit={handleEdit}
         />
@@ -122,11 +119,12 @@ function CardGrid({ cards, setCards }) {
 
 export default function App() {
   const [cards, setCards] = useState([
-    { id: 1, name: 'Computer Networks', courseCode: '20A78978', type: 'Core' },
-    { id: 2, name: 'Database Systems', courseCode: '20B12345', type: 'Elective' },
-    { id: 3, name: 'Operating Systems', courseCode: '20C45678', type: 'Core' },
-    { id: 4, name: 'Software Engineering', courseCode: '20D98765', type: 'Elective' },
-    { id: 5, name: 'Software', courseCode: '20D98765', type: 'Elective' },
+    { id: 1, name: 'Mr. Siva Subramanyam', contact: '20A78978'},
+    { id: 2, name: 'Mrs. D. Ratna Bhavani', contact: '20B12345' },
+    { id: 3, name: 'Mrs. M. Lakshmi Durga', contact: '20C45678'},
+    { id: 4, name: 'Mrs. V. Aruna', contact: '20D98765'},
+    { id: 5, name: 'Mrs. T. Revathi', contact: '20D98765'},
+    { id: 6, name: 'Dr. P. Vineeth', contact: '20D98765'},
   ]);
 
   return (
