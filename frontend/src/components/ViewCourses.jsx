@@ -15,13 +15,12 @@ const ViewCourses = () => {
   const [flashMessage, setFlashMessage] = useState({ type: "", message: "" });
   const [isLoading, setIsLoading] = useState(true);
 
-  // New course state with all required fields
   const [newCourse, setNewCourse] = useState({
     courseCode: "",
     name: "",
     shortName: "",
     credits: "",
-    type: "THEORY", // Default value
+    type: "THEORY",
     department: "",
     semester: "",
     regulation: "",
@@ -30,7 +29,6 @@ const ViewCourses = () => {
 
   const [selectedCourse, setSelectedCourse] = useState(null);
 
-  // Dropdown options state
   const [availableSemesters, setAvailableSemesters] = useState([]);
   const [availableBranches, setAvailableBranches] = useState([]);
   const [availableRegulations, setAvailableRegulations] = useState([]);
@@ -250,65 +248,67 @@ const ViewCourses = () => {
           </div>
         )}
 
-        {/* Course Table */}
-        <div className="p-6">
+        {/* Courses Display as Cards */}
+        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {courses.length > 0 ? (
-            <table className="w-full table-auto bg-white shadow-md rounded-md">
-              <thead className="bg-[#F6F1E6] text-black">
-                <tr>
-                  <th className="p-2 border">Course Code</th>
-                  <th className="p-2 border">Name</th>
-                  <th className="p-2 border">Short Name</th>
-                  <th className="p-2 border">Credits</th>
-                  <th className="p-2 border">Type</th>
-                  <th className="p-2 border">Department</th>
-                  <th className="p-2 border">Semester</th>
-                  <th className="p-2 border">Regulation</th>
-                  <th className="p-2 border">Edit Course</th>
-                  <th className="p-2 border">Delete Course</th>
-                </tr>
-              </thead>
-              <tbody>
-                {courses.map((course) => (
-                  <tr
-                    key={course._id}
-                    className="text-center hover:bg-gray-100"
+            courses.map((course) => (
+              <div
+                key={course._id}
+                className="flex justify-between w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-200 dark:border-gray-700 p-4 m-2"
+              >
+                <div className="flex flex-col items-start">
+                  <h5 className="mb-1 text-lg font-medium text-gray-900 dark:text-black">
+                    {course.name}
+                  </h5>
+                  <span className="text-sm text-gray-500 dark:text-black">
+                    Course Code: {course.courseCode}
+                  </span>
+                  <span className="text-sm text-gray-500 dark:text-black">
+                    Credits: {course.credits}
+                  </span>
+                  <span className="text-sm text-gray-500 dark:text-black">
+                    Type: {course.type}
+                  </span>
+                </div>
+                <div className="relative">
+                  <button
+                    onClick={() => setSelectedCourse(course)}
+                    className="text-gray-500 dark:text-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg"
                   >
-                    <td className="p-2 border">{course.courseCode}</td>
-                    <td className="p-2 border">{course.name}</td>
-                    <td className="p-2 border">{course.shortName}</td>
-                    <td className="p-2 border">{course.credits}</td>
-                    <td className="p-2 border">{course.type}</td>
-                    <td className="p-2 border">{course.department}</td>
-                    <td className="p-2 border">{course.semester}</td>
-                    <td className="p-2 border">{course.regulation}</td>
-
-                    <td className="p-2 border">
+                    <svg
+                      className="w-5 h-5 hover:text-gray-700 dark:hover:text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="currentColor"
+                      viewBox="0 0 16 3"
+                    >
+                      <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z" />
+                    </svg>
+                  </button>
+                  {selectedCourse === course && (
+                    <div className="absolute right-0 mt-2 w-28 bg-white border rounded shadow-md z-10">
                       <button
-                        className="bg-blue-500 text-white px-2 py-1 rounded mr-2"
                         onClick={() => openEditModal(course)}
+                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-200"
                       >
                         Edit
                       </button>
-                    </td>
-                    <td className="p-2 border">
                       <button
-                        className="bg-red-500 text-white px-2 py-1 rounded"
                         onClick={() => deleteCourse(course._id)}
+                        className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-200"
                       >
                         Delete
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
           ) : (
             <p className="text-center text-gray-500">No courses to display</p>
           )}
         </div>
 
-        {/* Add Course Modal */}
+        {/* Add/Edit Course Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-[#F6F1E6] p-6 rounded shadow-md w-full max-w-md">
@@ -334,15 +334,6 @@ const ViewCourses = () => {
                   placeholder="Name"
                   value={selectedCourse ? selectedCourse.name : newCourse.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
-                  className="border border-gray-400 p-2 rounded text-black"
-                />
-                <input
-                  type="text"
-                  placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
-                  value={newCourse[key]}
-                  onChange={(e) =>
-                    handleInputChange("shortName", e.target.value)
-                  }
                   className="border border-gray-400 p-2 rounded text-black"
                 />
                 <input
