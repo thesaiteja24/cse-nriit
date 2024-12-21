@@ -12,8 +12,8 @@ const ViewFaculty = () => {
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [flashMessage, setFlashMessage] = useState({ type: "", message: "" });
-
   const [selectedFaculty, setSelectedFaculty] = useState(null);
+  const [visibleDropdown, setVisibleDropdown] = useState(null);
 
   const [availableBranches, setAvailableBranches] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,6 +26,9 @@ const ViewFaculty = () => {
 
   useEffect(() => {
     fetchDropdownOptions();
+    const handleClickOutside = () => setVisibleDropdown(null);
+    window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -161,6 +164,10 @@ const ViewFaculty = () => {
     else setNewFaculty(updated);
   };
 
+  const toggleDropdown = (facultyId) => {
+    setVisibleDropdown(visibleDropdown === facultyId ? null : facultyId);
+  };
+
   return (
     <>
       <Helmet>
@@ -229,7 +236,10 @@ const ViewFaculty = () => {
                 </div>
                 <div className="relative">
                   <button
-                    onClick={() => setSelectedFaculty(fac)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleDropdown(fac._id);
+                    }}
                     className="text-gray-500 dark:text-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg"
                   >
                     <svg
@@ -241,7 +251,7 @@ const ViewFaculty = () => {
                       <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z" />
                     </svg>
                   </button>
-                  {selectedFaculty === fac && (
+                  {visibleDropdown === fac._id && (
                     <div className="absolute right-0 mt-2 w-28 bg-white border rounded shadow-md z-10">
                       <button
                         onClick={() => openEditModal(fac)}
