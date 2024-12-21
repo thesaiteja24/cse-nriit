@@ -28,6 +28,7 @@ const ViewCourses = () => {
   });
 
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [visibleDropdown, setVisibleDropdown] = useState(null);
 
   const [availableSemesters, setAvailableSemesters] = useState([]);
   const [availableBranches, setAvailableBranches] = useState([]);
@@ -35,6 +36,10 @@ const ViewCourses = () => {
 
   useEffect(() => {
     fetchDropdownOptions();
+    // Add event listener to close dropdown on outside click
+    const handleClickOutside = () => setVisibleDropdown(null);
+    window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -169,6 +174,10 @@ const ViewCourses = () => {
     else setNewCourse(updated);
   };
 
+  const toggleDropdown = (courseId) => {
+    setVisibleDropdown(visibleDropdown === courseId ? null : courseId);
+  };
+
   return (
     <>
       <Helmet>
@@ -272,7 +281,10 @@ const ViewCourses = () => {
                 </div>
                 <div className="relative">
                   <button
-                    onClick={() => setSelectedCourse(course)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleDropdown(course._id);
+                    }}
                     className="text-gray-500 dark:text-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg"
                   >
                     <svg
@@ -284,7 +296,7 @@ const ViewCourses = () => {
                       <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z" />
                     </svg>
                   </button>
-                  {selectedCourse === course && (
+                  {visibleDropdown === course._id && (
                     <div className="absolute right-0 mt-2 w-28 bg-white border rounded shadow-md z-10">
                       <button
                         onClick={() => openEditModal(course)}
