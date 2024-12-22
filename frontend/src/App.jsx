@@ -11,7 +11,7 @@ import Register from "./components/Register";
 import LandingPage from "./components/LandingPage";
 import ViewCourses from "./components/ViewCourses";
 import ViewFaculty from "./components/ViewFaculty";
-import AssignFaculty from "./components/assignFaculty";
+import AssignFaculty from "./components/AssignFaculty";
 import CardComponent from "./components/cardComponent";
 function Navigation() {
   const location = useLocation();
