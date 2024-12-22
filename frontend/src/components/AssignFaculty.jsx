@@ -45,36 +45,57 @@ const AssignFaculty = () => {
       if (!selectedCourse) {
         setFlashMessage({ type: "error", message: "Please select a course" });
         return;
-      } else if (!selectedFaculty1 && !selectedFaculty2 && !selectedFaculty3) {
+      }
+  
+      if (!selectedFaculty1 && !selectedFaculty2 && !selectedFaculty3) {
         setFlashMessage({
           type: "error",
-          message: "Please select atleast one faculty for the course",
+          message: "Please select at least one faculty for the course",
         });
         return;
       }
-      setAssigned([
-        ...assigned,
+  
+      const courseDetails = selectedCourse.split(","); // Convert the value into an array
+      const faculty1Details = selectedFaculty1
+        ? selectedFaculty1.split(",")
+        : ["", "No faculty assigned"];
+      const faculty2Details = selectedFaculty2
+        ? selectedFaculty2.split(",")
+        : ["", "No faculty assigned"];
+      const faculty3Details = selectedFaculty3
+        ? selectedFaculty3.split(",")
+        : ["", "No faculty assigned"];
+  
+      setAssigned((prevAssigned) => [
+        ...prevAssigned,
         {
-          faculty1: selectedFaculty1,
-          faculty2: selectedFaculty2,
-          faculty3: selectedFaculty3,
-          course: selectedCourse,
+          courseId: courseDetails[0],
+          course: courseDetails[1],
+          faculty1Id: faculty1Details[0],
+          faculty1: faculty1Details[1],
+          faculty2Id: faculty2Details[0],
+          faculty2: faculty2Details[1],
+          faculty3Id: faculty3Details[0],
+          faculty3: faculty3Details[1],
         },
       ]);
+  
+      // Reset selections
       setSelectedCourse("");
       setSelectedFaculty1("");
       setSelectedFaculty2("");
       setSelectedFaculty3("");
+  
+      setFlashMessage({ type: "success", message: "Faculty assigned successfully!" });
     } catch (err) {
-      console.error("Error assigning faculty", err);
+      console.error("Error assigning faculty:", err);
       setFlashMessage({
         type: "error",
-        message: "Cannot assign faculty. Please try again.",
+        message: "Failed to assign faculty. Please try again.",
       });
     }
-
-    console.log(assigned);
   };
+  
 
   const fetchDropdownOptions = async () => {
     setIsLoading(true);
@@ -257,7 +278,10 @@ const AssignFaculty = () => {
           >
             <option value="">Select Course</option>
             {courses.map((courses) => (
-              <option key={courses._id} value={courses.shortName}>
+              <option
+                key={courses._id}
+                value={[courses._id, courses.shortName]}
+              >
                 {courses.shortName}
               </option>
             ))}
@@ -270,7 +294,7 @@ const AssignFaculty = () => {
           >
             <option value="">Select Faculty 1</option>
             {faculty.map((faculty) => (
-              <option key={faculty._id} value={faculty.name}>
+              <option key={faculty._id} value={[faculty._id, faculty.name]}>
                 {faculty.name}
               </option>
             ))}
@@ -283,7 +307,7 @@ const AssignFaculty = () => {
           >
             <option value="">Select Faculty 2</option>
             {faculty.map((faculty) => (
-              <option key={faculty._id} value={faculty.name}>
+              <option key={faculty._id} value={[faculty._id, faculty.name]}>
                 {faculty.name}
               </option>
             ))}
@@ -295,7 +319,7 @@ const AssignFaculty = () => {
           >
             <option value="">Select Faculty 3</option>
             {faculty.map((faculty) => (
-              <option key={faculty._id} value={faculty.name}>
+              <option key={faculty._id} value={[faculty._id, faculty.name]}>
                 {faculty.name}
               </option>
             ))}
