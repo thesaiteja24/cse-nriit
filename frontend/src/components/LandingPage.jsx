@@ -90,10 +90,10 @@ const LandingPage = () => {
               Manideep
             </a> */}
             <a href="https://www.linkedin.com/in/panidepu-gayathri-56814326a/" target="_blank" rel="noopener noreferrer" className="hover:underline">
-              Gayatri
+              Gayathri
             </a>
             <a href="https://www.linkedin.com/in/mohammad-mushtaq-ahamad-436305256/" target="_blank" rel="noopener noreferrer" className="hover:underline">
-              Musthq
+              Musthaq
             </a>
           </div>
         </div>
