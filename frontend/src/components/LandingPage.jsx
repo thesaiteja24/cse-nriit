@@ -73,7 +73,7 @@ const LandingPage = () => {
         <p className="text-gray-700 leading-relaxed max-w-4xl mx-auto text-sm sm:text-base">
           Welcome to Timetable Generator! A platform to generate Time Table.
           where we take the burden of scheduling from you. Our team{" "}
-          <b>Sai Teja, Shanwaz, Gayatri</b>, and <b>Musthq</b> has
+          <b>Sai Teja, Shanwaz, Gayathri</b>, and <b>Musthaq</b> has
           developed an easy-to-use Timetable Generator to simplify the process
           of creating and managing your schedules efficiently.
         </p>
