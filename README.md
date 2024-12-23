@@ -41,7 +41,7 @@ The *Timetable Generator* is a full-stack application designed to help education
 
 ### *Folder Structure*
 
-plaintext
+```
 Timetable_Generator/
 ├── frontend/              # React frontend
 │   ├── public/            # Static files (index.html, images)
@@ -63,7 +63,7 @@ Timetable_Generator/
 ├── .gitignore             # Ignore unnecessary files in Git
 ├── README.md              # Project documentation
 └── LICENSE                # License file
-
+```
 
 ---
 
