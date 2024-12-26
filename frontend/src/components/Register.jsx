@@ -9,7 +9,6 @@ import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
   const navigate = useNavigate();
-  const backend_url = import.meta.env.VITE_BACKEND_URL;
   const { register: registerUser } = useAuth();
 
   const {
