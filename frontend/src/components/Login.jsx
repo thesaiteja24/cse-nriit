@@ -43,20 +43,18 @@ export default function Login() {
       const result = await login(data);
       if (result.success) {
         setFlashMessage({ type: "success", message: result.message });
-        axiosInstance
+
         navigate(from, {
           state: { message: result.message, type: "success" },
         });
       } else {
         setFlashMessage({ type: "error", message: result.message });
-        axiosInstance
       }
     } catch (error) {
       setFlashMessage({
         type: "error",
         message: "An error occurred during login",
       });
-      axiosInstance
     }
   };
 
