@@ -19,6 +19,17 @@ export default function Register() {
   const [flashMessage, setFlashMessage] = useState({ type: "", message: "" });
   const [showPassword, setShowPassword] = useState(false);
 
+  useEffect(() => {
+    if (flashMessage.message) {
+      const timer = setTimeout(() => {
+        setFlashMessage({ type: "", message: "" });
+      }, 3000);
+
+      // Cleanup the timeout on component unmount or when flashMessage changes
+      return () => clearTimeout(timer);
+    }
+  }, [flashMessage.message]);
+
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
@@ -27,9 +38,6 @@ export default function Register() {
     try {
       const response = await axios.post(backend_url + "register", data);
       setFlashMessage({ type: "success", message: response.data.message });
-
-      // Clear flash message after 5 seconds
-      setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
       navigate("/courses", {
         state: { message: response.data.message, type: "success" },
       });
@@ -37,9 +45,6 @@ export default function Register() {
       const errorMessage =
         err.response?.data.message || "An error occurred during registration";
       setFlashMessage({ type: "error", message: errorMessage });
-
-      // Clear flash message after 5 seconds
-      setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
     }
   };
 

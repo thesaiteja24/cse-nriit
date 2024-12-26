@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -24,6 +24,16 @@ export default function Login() {
   });
   const [showPassword, setShowPassword] = useState(false);
 
+  useEffect(() => {
+    if (flashMessage.message) {
+      const timer = setTimeout(() => {
+        setFlashMessage({ type: "", message: "" });
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [flashMessage]);
+
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
@@ -33,20 +43,20 @@ export default function Login() {
       const result = await login(data);
       if (result.success) {
         setFlashMessage({ type: "success", message: result.message });
-        setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
+        axiosInstance
         navigate(from, {
           state: { message: result.message, type: "success" },
         });
       } else {
         setFlashMessage({ type: "error", message: result.message });
-        setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
+        axiosInstance
       }
     } catch (error) {
       setFlashMessage({
         type: "error",
         message: "An error occurred during login",
       });
-      setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
+      axiosInstance
     }
   };
 
