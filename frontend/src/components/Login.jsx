@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { Helmet } from "react-helmet";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
-  const backend_url = import.meta.env.VITE_BACKEND_URL;
+  const location = useLocation();
+  const { login } = useAuth();
+  const from = location.state?.from?.pathname || "/courses";
 
   const {
     register,
@@ -24,19 +28,22 @@ export default function Login() {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(`${backend_url}login`, data);
-      setFlashMessage({ type: "success", message: response.data.message });
-
-      // Clear flash message after 5 seconds
-      setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
-      navigate("/courses", {state: { message: response.data.message, type: "success" }},);
-      
-    } catch (err) {
-      const errorMessage =
-        err.response?.data.message || "An error occurred during login";
-      setFlashMessage({ type: "error", message: errorMessage });
-
-      // Clear flash message after 5 seconds
+      const result = await login(data);
+      if (result.success) {
+        setFlashMessage({ type: "success", message: result.message });
+        setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
+        navigate(from, {
+          state: { message: result.message, type: "success" },
+        });
+      } else {
+        setFlashMessage({ type: "error", message: result.message });
+        setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
+      }
+    } catch (error) {
+      setFlashMessage({
+        type: "error",
+        message: "An error occurred during login",
+      });
       setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
     }
   };
