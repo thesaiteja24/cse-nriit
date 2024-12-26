@@ -25,6 +25,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const register = async (data) => {
+    try {
+      const response = await axios.post(`${backend_url}register`, data, {
+        withCredentials: true,
+      });
+      setUser(response.data.user);
+      return { success: true, message: response.data.message };
+    } catch (error) {
+      return {
+        success: false,
+        message:
+          error.response?.data.message ||
+          "An error occurred during registration",
+      };
+    }
+  };
+
   const login = async (data) => {
     try {
       const response = await axios.post(`${backend_url}login`, data, {
@@ -62,7 +79,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout,register, loading }}>
       {children}
     </AuthContext.Provider>
   );

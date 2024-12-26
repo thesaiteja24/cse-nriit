@@ -28,8 +28,17 @@ exports.registerUser = async (req, res) => {
 
     const user = new User({ fullname, email, role: "user" });
     await User.register(user, password);
-
-    res.status(201).json({ message: "User registered successfully" });
+    req.session.userId = user._id;
+    res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      user: {
+        id: user._id,
+        fullname: user.fullname,
+        email: user.email,
+        role: user.role,
+      },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal Server Error" });
