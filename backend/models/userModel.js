@@ -16,6 +16,11 @@ const userSchema = new mongoose.Schema({
       "Please provide a valid email address",
     ],
   },
+  role: {
+    type: String,
+    enum: ["admin", "user"],
+    default: "user",
+  },
 });
 
 // Add passport-local-mongoose plugin to the schema
