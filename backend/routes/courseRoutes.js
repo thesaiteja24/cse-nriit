@@ -10,8 +10,23 @@ router.get("/api/regulations", courseController.getRegulations);
 
 // Course CRUD operations
 router.get("/courses", courseController.getCourses); // Get courses based on filters
-router.post("/courses", auth, courseController.addCourse); // Adding new course
-router.put("/courses/:id", auth, courseController.updateCourse); // Updating existing course
-router.delete("/courses/:id", auth, courseController.deleteCourse); // Deleting existing course
+router.post(
+  "/courses",
+  auth.isAuthenticated,
+  auth.isAdmin,
+  courseController.addCourse
+); // Adding new course
+router.put(
+  "/courses/:id",
+  auth.isAuthenticated,
+  auth.isAdmin,
+  courseController.updateCourse
+); // Updating existing course
+router.delete(
+  "/courses/:id",
+  auth.isAuthenticated,
+  auth.isAdmin,
+  courseController.deleteCourse
+); // Deleting existing course
 
 module.exports = router;

@@ -5,6 +5,11 @@ import { Helmet } from "react-helmet";
 
 const ViewFaculty = () => {
   const backend_url = import.meta.env.VITE_BACKEND_URL;
+  // Add this near the top of your ViewFaculty component
+  const axiosInstance = axios.create({
+    withCredentials: true, // Important for session cookies
+    baseURL: backend_url,
+  });
 
   const location = useLocation();
   const [branch, setBranch] = useState("");
@@ -45,10 +50,21 @@ const ViewFaculty = () => {
     }
   }, [location.state]);
 
+  useEffect(() => {
+    if (flashMessage.message) {
+      const timer = setTimeout(() => {
+        setFlashMessage({ type: "", message: "" });
+      }, 3000);
+
+      // Cleanup the timeout on component unmount or when flashMessage changes
+      return () => clearTimeout(timer);
+    }
+  }, [flashMessage.message]);
+
   const fetchDropdownOptions = async () => {
     setIsLoading(true);
     try {
-      const branchesRes = await axios.get(`${backend_url}api/branches`);
+      const branchesRes = await axiosInstance.get(`${backend_url}api/branches`);
       setAvailableBranches(branchesRes.data);
     } catch (error) {
       setFlashMessage({
@@ -69,7 +85,7 @@ const ViewFaculty = () => {
       return;
     }
     try {
-      const response = await axios.get(`${backend_url}api/faculty`, {
+      const response = await axiosInstance.get(`${backend_url}api/faculty`, {
         params: { department: branch },
       });
 
@@ -97,7 +113,10 @@ const ViewFaculty = () => {
         : `${backend_url}faculty`;
       const method = selectedFaculty ? "put" : "post";
 
-      const response = await axios[method](url, selectedFaculty || newFaculty);
+      const response = await axiosInstance[method](
+        url,
+        selectedFaculty || newFaculty
+      );
 
       if (!response.data.success) {
         throw new Error(response.data.message || "Failed to save Faculty");
@@ -125,7 +144,9 @@ const ViewFaculty = () => {
       return;
 
     try {
-      const response = await axios.delete(`${backend_url}faculty/${facultyId}`);
+      const response = await axiosInstance.delete(
+        `${backend_url}faculty/${facultyId}`
+      );
 
       if (!response.data.success) {
         throw new Error("Failed to delete Faculty");

@@ -5,6 +5,10 @@ import { Helmet } from "react-helmet";
 
 const ViewCourses = () => {
   const backend_url = import.meta.env.VITE_BACKEND_URL;
+  const axiosInstance = axios.create({
+    withCredentials: true, // Important for session cookies
+    baseURL: backend_url,
+  });
 
   const location = useLocation();
   const [semester, setSemester] = useState("");
@@ -46,7 +50,7 @@ const ViewCourses = () => {
     if (flashMessage.message) {
       const timer = setTimeout(() => {
         setFlashMessage({ type: "", message: "" });
-      }, 5000);
+      }, 3000);
 
       return () => clearTimeout(timer);
     }
@@ -56,9 +60,9 @@ const ViewCourses = () => {
     setIsLoading(true);
     try {
       const [semestersRes, branchesRes, regulationsRes] = await Promise.all([
-        axios.get(`${backend_url}api/semesters`),
-        axios.get(`${backend_url}api/branches`),
-        axios.get(`${backend_url}api/regulations`),
+        axiosInstance.get(`${backend_url}api/semesters`),
+        axiosInstance.get(`${backend_url}api/branches`),
+        axiosInstance.get(`${backend_url}api/regulations`),
       ]);
 
       setAvailableSemesters(semestersRes.data);
@@ -85,7 +89,7 @@ const ViewCourses = () => {
     }
 
     try {
-      const response = await axios.get(`${backend_url}courses`, {
+      const response = await axiosInstance.get(`${backend_url}courses`, {
         params: { semester, branch, regulation },
       });
 
@@ -114,7 +118,10 @@ const ViewCourses = () => {
         : `${backend_url}courses`;
       const method = selectedCourse ? "put" : "post";
 
-      const response = await axios[method](url, selectedCourse || newCourse);
+      const response = await axiosInstance[method](
+        url,
+        selectedCourse || newCourse
+      );
 
       if (!response.data.success) {
         throw new Error(response.data.message || "Failed to save course");
@@ -141,7 +148,9 @@ const ViewCourses = () => {
     if (!window.confirm("Are you sure you want to delete this course?")) return;
 
     try {
-      const response = await axios.delete(`${backend_url}courses/${courseId}`);
+      const response = await axiosInstance.delete(
+        `${backend_url}courses/${courseId}`
+      );
 
       if (!response.data.success) {
         throw new Error("Failed to delete course");
@@ -379,6 +388,24 @@ const ViewCourses = () => {
                       }
                       onChange={(e) =>
                         handleInputChange("name", e.target.value)
+                      }
+                      className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                    />
+                  </div>
+
+                  {/* Short Name */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Short Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter course name"
+                      value={
+                        selectedCourse ? selectedCourse.shortName : newCourse.shortName
+                      }
+                      onChange={(e) =>
+                        handleInputChange("shortName", e.target.value)
                       }
                       className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
                     />
