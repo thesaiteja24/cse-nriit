@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import { Link, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { Helmet } from "react-helmet";
@@ -10,7 +9,7 @@ import { useAuth } from "../context/AuthContext";
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { user, login } = useAuth();
   const from = location.state?.from?.pathname || "/courses";
 
   const {
@@ -19,7 +18,10 @@ export default function Login() {
     formState: { errors },
   } = useForm();
 
-  const [flashMessage, setFlashMessage] = useState({ type: "", message: "" });
+  const [flashMessage, setFlashMessage] = useState({
+    type: location.state?.type || "",
+    message: location.state?.message || "",
+  });
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
@@ -48,6 +50,9 @@ export default function Login() {
     }
   };
 
+  if (user) {
+    return <Navigate to="/courses" replace />;
+  }
   return (
     <>
       <Helmet>

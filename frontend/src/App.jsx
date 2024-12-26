@@ -5,8 +5,8 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-import { AuthProvider } from './context/AuthContext';  // Make sure this path is correct
-import Navigation from './components/Navigation';  // Move Navigation to separate component
+import { AuthProvider } from './context/AuthContext';  
+import Navigation from './components/Navigation';  
 import Login from "./components/Login";
 import Register from "./components/Register";
 import LandingPage from "./components/LandingPage";
@@ -48,14 +48,6 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <AssignFaculty />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/card"
-                element={
-                  <ProtectedRoute>
-                    <CardComponent />
                   </ProtectedRoute>
                 }
               />
