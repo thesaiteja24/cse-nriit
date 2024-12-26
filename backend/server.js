@@ -10,6 +10,7 @@ const connectDB = require("./config/db");
 const configurePassport = require("./config/passport");
 const userRoutes = require("./routes/userRoutes");
 const courseRoutes = require("./routes/courseRoutes");
+const facultyRoutes = require("./routes/facultyRoutes");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -26,29 +27,27 @@ const corsOptions = {
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
-app.use(cors());
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Session configuration
-app.use(
-  session({
-    secret: process.env.SESSION_KEY,
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: db_url,
-      ttl: 24 * 60 * 60,
-    }),
-    cookie: {
-      secure: process.env.NODE_ENV === "production",
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000,
-      sameSite: "strict",
-    },
-  })
-);
+const sessionOptions = {
+  store: MongoStore.create({ mongoUrl: db_url }),
+  secret: process.env.SESSION_KEY,
+  resave: false,
+  saveUninitialized: false, // Change to false for better security
+  cookie: {
+    secure: process.env.NODE_ENV === "production", // Enable in production
+    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax'
+  }
+};
+
+app.use(session(sessionOptions));
 
 // Session security middleware
 app.use((req, res, next) => {
@@ -69,8 +68,12 @@ app.use((req, res, next) => {
 configurePassport(app);
 
 // Routes
+app.get("/", (req, res) => {
+  res.send("OK");
+});
 app.use("/", userRoutes);
 app.use("/", courseRoutes);
+app.use("/", facultyRoutes);
 
 // Error handling
 app.use((err, req, res, next) => {

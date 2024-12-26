@@ -1,9 +1,16 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 const LandingPage = () => {
   return (
+    
     <div className="bg-[#EDE6DA] min-h-screen text-[#2B2B2B] font-sans">
+      <Helmet>
+        <title>Welcome to Our Platform</title>
+        <meta name="description" content="The landing page for our platform." />
+        <meta name="keywords" content="landing page, react, platform" />
+      </Helmet>
       {/* Navbar */}
       <header className="flex flex-col sm:flex-row justify-between items-center p-4 sm:py-6 sm:px-8 bg-[#F6F1E6] shadow-sm">
         <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-0">Timetable Generator</h1>
@@ -32,7 +39,7 @@ const LandingPage = () => {
             Your go-to platform for effortlessly creating and managing
             schedules. "We take the burden of scheduling off your shoulders."
           </h4>
-          <Link>
+          <Link to="/courses">
             <button className="bg-black text-white px-6 sm:px-8 py-3 rounded-full hover:bg-gray-800 w-full sm:w-auto">
               CREATE NOW
             </button>
@@ -66,7 +73,7 @@ const LandingPage = () => {
         <p className="text-gray-700 leading-relaxed max-w-4xl mx-auto text-sm sm:text-base">
           Welcome to Timetable Generator! A platform to generate Time Table.
           where we take the burden of scheduling from you. Our team{" "}
-          <b>Sai Teja, Shanwaz, Gayatri</b>, and <b>Musthq</b> has
+          <b>Sai Teja, Shanwaz, Gayathri</b>, and <b>Musthaq</b> has
           developed an easy-to-use Timetable Generator to simplify the process
           of creating and managing your schedules efficiently.
         </p>
@@ -83,10 +90,10 @@ const LandingPage = () => {
               Manideep
             </a> */}
             <a href="https://www.linkedin.com/in/panidepu-gayathri-56814326a/" target="_blank" rel="noopener noreferrer" className="hover:underline">
-              Gayatri
+              Gayathri
             </a>
             <a href="https://www.linkedin.com/in/mohammad-mushtaq-ahamad-436305256/" target="_blank" rel="noopener noreferrer" className="hover:underline">
-              Musthq
+              Musthaq
             </a>
           </div>
         </div>

@@ -1,4 +1,4 @@
-const Course = require("../models/course");
+const Course = require("../models/courseModel");
 
 class CourseController {
   // Get all unique semesters

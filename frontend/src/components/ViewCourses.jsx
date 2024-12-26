@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import { Helmet } from "react-helmet";
 
 const ViewCourses = () => {
   const backend_url = import.meta.env.VITE_BACKEND_URL;
@@ -14,13 +15,12 @@ const ViewCourses = () => {
   const [flashMessage, setFlashMessage] = useState({ type: "", message: "" });
   const [isLoading, setIsLoading] = useState(true);
 
-  // New course state with all required fields
   const [newCourse, setNewCourse] = useState({
     courseCode: "",
     name: "",
     shortName: "",
     credits: "",
-    type: "THEORY", // Default value
+    type: "THEORY",
     department: "",
     semester: "",
     regulation: "",
@@ -28,14 +28,18 @@ const ViewCourses = () => {
   });
 
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [visibleDropdown, setVisibleDropdown] = useState(null);
 
-  // Dropdown options state
   const [availableSemesters, setAvailableSemesters] = useState([]);
   const [availableBranches, setAvailableBranches] = useState([]);
   const [availableRegulations, setAvailableRegulations] = useState([]);
 
   useEffect(() => {
     fetchDropdownOptions();
+    // Add event listener to close dropdown on outside click
+    const handleClickOutside = () => setVisibleDropdown(null);
+    window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -170,263 +174,356 @@ const ViewCourses = () => {
     else setNewCourse(updated);
   };
 
+  const toggleDropdown = (courseId) => {
+    setVisibleDropdown(visibleDropdown === courseId ? null : courseId);
+  };
+
   return (
-    <div className="bg-[#EDE6DA] min-h-screen font-sans relative">
-      {/* Navbar */}
-      <div className="bg-[#F6F1E6] px-6 py-4 flex flex-col md:flex-row items-center justify-between shadow-md">
-        <div className="flex gap-4 mb-2 md:mb-0">
-          {/* Dropdowns */}
-          <select
-            className="border border-gray-400 p-2 rounded bg-white text-black"
-            value={semester}
-            onChange={(e) => setSemester(e.target.value)}
-          >
-            <option value="">Select Semester</option>
-            {availableSemesters.map((sem) => (
-              <option key={sem.id} value={sem.value}>
-                {sem.label}
-              </option>
-            ))}
-          </select>
-
-          <select
-            className="border border-gray-400 p-2 rounded bg-white text-black"
-            value={branch}
-            onChange={(e) => setBranch(e.target.value)}
-          >
-            <option value="">Select Branch</option>
-            {availableBranches.map((branch) => (
-              <option key={branch.id} value={branch.value}>
-                {branch.label}
-              </option>
-            ))}
-          </select>
-
-          <select
-            className="border border-gray-400 p-2 rounded bg-white text-black"
-            value={regulation}
-            onChange={(e) => setRegulation(e.target.value)}
-          >
-            <option value="">Select Regulation</option>
-            {availableRegulations.map((reg) => (
-              <option key={reg.id} value={reg.value}>
-                {reg.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex gap-4">
-          <button
-            onClick={fetchCourses}
-            className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors"
-          >
-            View
-          </button>
-          <button
-            onClick={() => setShowModal(true)}
-            className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors"
-          >
-            Add
-          </button>
-        </div>
-      </div>
-
-      {/* Flash Message */}
-      {flashMessage.message && (
-        <div
-          className={`fixed bottom-4 left-4 z-50 p-4 rounded-lg text-white shadow-lg transition-opacity duration-500 ${
-            flashMessage.type === "success" ? "bg-green-500" : "bg-red-500"
-          }`}
-        >
-          {flashMessage.message}
-        </div>
-      )}
-
-      {/* Course Table */}
-      <div className="p-6">
-        {courses.length > 0 ? (
-          <table className="w-full table-auto bg-white shadow-md rounded-md">
-            <thead className="bg-[#F6F1E6] text-black">
-              <tr>
-                <th className="p-2 border">Course Code</th>
-                <th className="p-2 border">Name</th>
-                <th className="p-2 border">Short Name</th>
-                <th className="p-2 border">Credits</th>
-                <th className="p-2 border">Type</th>
-                <th className="p-2 border">Department</th>
-                <th className="p-2 border">Semester</th>
-                <th className="p-2 border">Regulation</th>
-                <th className="p-2 border">Edit Course</th>
-                <th className="p-2 border">Delete Course</th>
-              </tr>
-            </thead>
-            <tbody>
-              {courses.map((course) => (
-                <tr key={course._id} className="text-center hover:bg-gray-100">
-                  <td className="p-2 border">{course.courseCode}</td>
-                  <td className="p-2 border">{course.name}</td>
-                  <td className="p-2 border">{course.shortName}</td>
-                  <td className="p-2 border">{course.credits}</td>
-                  <td className="p-2 border">{course.type}</td>
-                  <td className="p-2 border">{course.department}</td>
-                  <td className="p-2 border">{course.semester}</td>
-                  <td className="p-2 border">{course.regulation}</td>
-
-                  <td className="p-2 border">
-                    <button
-                      className="bg-blue-500 text-white px-2 py-1 rounded mr-2"
-                      onClick={() => openEditModal(course)}
-                    >
-                      Edit
-                    </button>
-                  </td>
-                  <td className="p-2 border">
-                    <button
-                      className="bg-red-500 text-white px-2 py-1 rounded"
-                      onClick={() => deleteCourse(course._id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
+    <>
+      <Helmet>
+        <title>Courses</title>
+        <meta name="description" content="Explore our courses" />
+        <meta name="keywords" content="courses, education, react" />
+      </Helmet>
+      <div className="bg-[#EDE6DA] min-h-screen font-sans relative">
+        {/* Responsive Navbar */}
+        <div className="bg-[#F6F1E6] p-4 md:p-6 flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between shadow-md">
+          {/* Filters Section */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 w-full md:w-auto m-1">
+            <select
+              className="w-full border border-gray-400 p-2 rounded bg-white text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+              value={semester}
+              onChange={(e) => setSemester(e.target.value)}
+            >
+              <option value="">Select Semester</option>
+              {availableSemesters.map((sem) => (
+                <option key={sem.id} value={sem.value}>
+                  {sem.label}
+                </option>
               ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className="text-center text-gray-500">No courses to display</p>
-        )}
-      </div>
+            </select>
 
-      {/* Add Course Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-[#F6F1E6] p-6 rounded shadow-md w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4 text-black">
-              {selectedCourse ? "Edit Course" : "Add Course"}
-            </h2>
-            <div className="flex flex-col gap-2">
-              <input
-                type="text"
-                placeholder="Course Code"
-                value={
-                  selectedCourse
-                    ? selectedCourse.courseCode
-                    : newCourse.courseCode
-                }
-                onChange={(e) =>
-                  handleInputChange("courseCode", e.target.value)
-                }
-                className="border border-gray-400 p-2 rounded text-black"
-              />
-              <input
-                type="text"
-                placeholder="Name"
-                value={selectedCourse ? selectedCourse.name : newCourse.name}
-                onChange={(e) => handleInputChange("name", e.target.value)}
-                className="border border-gray-400 p-2 rounded text-black"
-              />
-              <input
-                type="text"
-                placeholder="Short Name"
-                value={
-                  selectedCourse
-                    ? selectedCourse.shortName
-                    : newCourse.shortName
-                }
-                onChange={(e) => handleInputChange("shortName", e.target.value)}
-                className="border border-gray-400 p-2 rounded text-black"
-              />
-              <input
-                type="number"
-                placeholder="Credits"
-                value={
-                  selectedCourse ? selectedCourse.credits : newCourse.credits
-                }
-                onChange={(e) => handleInputChange("credits", e.target.value)}
-                className="border border-gray-400 p-2 rounded text-black"
-              />
-              <select
-                value={selectedCourse ? selectedCourse.type : newCourse.type}
-                onChange={(e) => handleInputChange("type", e.target.value)}
-                className="border border-gray-400 p-2 rounded text-black"
-              >
-                <option value="THEORY">Theory</option>
-                <option value="LAB">Lab</option>
-                <option value="PROJECT">Project</option>
-              </select>
-              <select
-                value={
-                  selectedCourse
-                    ? selectedCourse.department
-                    : newCourse.department
-                }
-                onChange={(e) =>
-                  handleInputChange("department", e.target.value)
-                }
-                className="border border-gray-400 p-2 rounded text-black"
-              >
-                <option value="">Select Department</option>
-                {availableBranches.map((branch) => (
-                  <option key={branch.id} value={branch.value}>
-                    {branch.label}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={
-                  selectedCourse ? selectedCourse.semester : newCourse.semester
-                }
-                onChange={(e) => handleInputChange("semester", e.target.value)}
-                className="border border-gray-400 p-2 rounded text-black"
-              >
-                <option value="">Select Semester</option>
-                {availableSemesters.map((sem) => (
-                  <option key={sem.id} value={sem.value}>
-                    {sem.label}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={
-                  selectedCourse
-                    ? selectedCourse.regulation
-                    : newCourse.regulation
-                }
-                onChange={(e) =>
-                  handleInputChange("regulation", e.target.value)
-                }
-                className="border border-gray-400 p-2 rounded text-black"
-              >
-                <option value="">Select Regulation</option>
-                {availableRegulations.map((reg) => (
-                  <option key={reg.id} value={reg.value}>
-                    {reg.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex justify-end gap-2 mt-4">
-              <button
-                onClick={() => {
-                  setShowModal(false);
-                  setSelectedCourse(null);
-                }}
-                className="bg-gray-400 px-4 py-2 rounded text-white hover:bg-gray-500 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={saveCourse}
-                className="bg-black px-4 py-2 rounded text-white hover:bg-gray-800 transition-colors"
-              >
-                {selectedCourse ? "Update" : "Save"}
-              </button>
-            </div>
+            <select
+              className="w-full border border-gray-400 p-2 rounded bg-white text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+              value={branch}
+              onChange={(e) => setBranch(e.target.value)}
+            >
+              <option value="">Select Branch</option>
+              {availableBranches.map((branch) => (
+                <option key={branch.id} value={branch.value}>
+                  {branch.label}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="w-full border border-gray-400 p-2 rounded bg-white text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+              value={regulation}
+              onChange={(e) => setRegulation(e.target.value)}
+            >
+              <option value="">Select Regulation</option>
+              {availableRegulations.map((reg) => (
+                <option key={reg.id} value={reg.value}>
+                  {reg.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 justify-end m-1">
+            <button
+              onClick={fetchCourses}
+              className="flex-1 sm:flex-none bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-black"
+            >
+              View
+            </button>
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex-1 sm:flex-none bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-black"
+            >
+              Add
+            </button>
           </div>
         </div>
-      )}
-    </div>
+
+        {/* Flash Message */}
+        {flashMessage.message && (
+          <div
+            className={`fixed bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-96 z-50 p-4 rounded-lg text-white shadow-lg transition-all transform duration-500 ${
+              flashMessage.type === "success" ? "bg-green-500" : "bg-red-500"
+            }`}
+          >
+            {flashMessage.message}
+          </div>
+        )}
+
+        {/* Responsive Course Grid */}
+        <div className="p-4 md:p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {courses.length > 0 ? (
+              courses.map((course) => (
+                <div
+                  key={course._id}
+                  className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden"
+                >
+                  <div className="p-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h5 className="text-lg font-medium text-gray-900 mb-2 line-clamp-2">
+                          {course.name}
+                        </h5>
+                        <div className="space-y-1">
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium">Code:</span>{" "}
+                            {course.courseCode}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium">Credits:</span>{" "}
+                            {course.credits}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium">Type:</span>{" "}
+                            {course.type}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Actions Dropdown */}
+                      <div className="relative ml-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleDropdown(course._id);
+                          }}
+                          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                        >
+                          <svg
+                            className="w-5 h-5 text-gray-500"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 16 3"
+                          >
+                            <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z" />
+                          </svg>
+                        </button>
+
+                        {visibleDropdown === course._id && (
+                          <div className="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg z-10 overflow-hidden">
+                            <button
+                              onClick={() => openEditModal(course)}
+                              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors flex items-center space-x-2"
+                            >
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              onClick={() => deleteCourse(course._id)}
+                              className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center space-x-2"
+                            >
+                              <span>Delete</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full flex justify-center items-center p-8">
+                <p className="text-gray-500 text-lg">No courses to display</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Add/Edit Course Modal */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+            <div className="bg-[#F6F1E6] rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <h2 className="text-2xl font-semibold mb-6 text-black">
+                  {selectedCourse ? "Edit Course" : "Add Course"}
+                </h2>
+                <div className="space-y-4">
+                  {/* Course Code */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Course Code
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter course code"
+                      value={
+                        selectedCourse
+                          ? selectedCourse.courseCode
+                          : newCourse.courseCode
+                      }
+                      onChange={(e) =>
+                        handleInputChange("courseCode", e.target.value)
+                      }
+                      className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                    />
+                  </div>
+
+                  {/* Course Name */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Course Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter course name"
+                      value={
+                        selectedCourse ? selectedCourse.name : newCourse.name
+                      }
+                      onChange={(e) =>
+                        handleInputChange("name", e.target.value)
+                      }
+                      className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                    />
+                  </div>
+
+                  {/* Credits */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Credits
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="Enter credits"
+                      value={
+                        selectedCourse
+                          ? selectedCourse.credits
+                          : newCourse.credits
+                      }
+                      onChange={(e) =>
+                        handleInputChange("credits", e.target.value)
+                      }
+                      className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                    />
+                  </div>
+
+                  {/* Course Type */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Course Type
+                    </label>
+                    <select
+                      value={
+                        selectedCourse ? selectedCourse.type : newCourse.type
+                      }
+                      onChange={(e) =>
+                        handleInputChange("type", e.target.value)
+                      }
+                      className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                    >
+                      <option value="THEORY">Theory</option>
+                      <option value="LAB">Lab</option>
+                      <option value="PROJECT">Project</option>
+                    </select>
+                  </div>
+
+                  {/* Department */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Department
+                    </label>
+                    <select
+                      value={
+                        selectedCourse
+                          ? selectedCourse.department
+                          : newCourse.department
+                      }
+                      onChange={(e) =>
+                        handleInputChange("department", e.target.value)
+                      }
+                      className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                    >
+                      <option value="">Select Department</option>
+                      {availableBranches.map((branch) => (
+                        <option key={branch.id} value={branch.value}>
+                          {branch.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Semester */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Semester
+                    </label>
+                    <select
+                      value={
+                        selectedCourse
+                          ? selectedCourse.semester
+                          : newCourse.semester
+                      }
+                      onChange={(e) =>
+                        handleInputChange("semester", e.target.value)
+                      }
+                      className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                    >
+                      <option value="">Select Semester</option>
+                      {availableSemesters.map((sem) => (
+                        <option key={sem.id} value={sem.value}>
+                          {sem.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Regulation */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Regulation
+                    </label>
+                    <select
+                      value={
+                        selectedCourse
+                          ? selectedCourse.regulation
+                          : newCourse.regulation
+                      }
+                      onChange={(e) =>
+                        handleInputChange("regulation", e.target.value)
+                      }
+                      className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                    >
+                      <option value="">Select Regulation</option>
+                      {availableRegulations.map((reg) => (
+                        <option key={reg.id} value={reg.value}>
+                          {reg.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
+                    <button
+                      onClick={() => {
+                        setShowModal(false);
+                        setSelectedCourse(null);
+                      }}
+                      className="w-full sm:w-auto bg-gray-400 px-6 py-2 rounded text-white hover:bg-gray-500 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={saveCourse}
+                      className="w-full sm:w-auto bg-black px-6 py-2 rounded text-white hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                    >
+                      {selectedCourse ? "Update" : "Save"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
