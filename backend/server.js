@@ -37,32 +37,16 @@ const sessionOptions = {
   store: MongoStore.create({ mongoUrl: db_url }),
   secret: process.env.SESSION_KEY,
   resave: false,
-  saveUninitialized: false, // Change to false for better security
+  saveUninitialized: true, // Change to false for better security
   cookie: {
     secure: process.env.NODE_ENV === "production", // Enable in production
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax'
   }
 };
 
 app.use(session(sessionOptions));
-
-// Session security middleware
-app.use((req, res, next) => {
-  if (req.session && !req.session.regenerate) {
-    req.session.regenerate = (cb) => {
-      cb();
-    };
-  }
-  if (req.session && !req.session.save) {
-    req.session.save = (cb) => {
-      cb();
-    };
-  }
-  next();
-});
 
 // Passport
 configurePassport(app);

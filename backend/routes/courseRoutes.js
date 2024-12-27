@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const courseController = require("../controllers/courseController");
-const auth = require("../middlewares/auth");
+const { adminMiddleware, authMiddleware } = require("../middlewares/auth");
 
 // Get dropdown options
 router.get("/api/semesters", courseController.getSemesters);
@@ -12,20 +12,20 @@ router.get("/api/regulations", courseController.getRegulations);
 router.get("/courses", courseController.getCourses); // Get courses based on filters
 router.post(
   "/courses",
-  auth.isAuthenticated,
-  auth.isAdmin,
+  authMiddleware,
+  adminMiddleware,
   courseController.addCourse
 ); // Adding new course
 router.put(
   "/courses/:id",
-  auth.isAuthenticated,
-  auth.isAdmin,
+  authMiddleware,
+  adminMiddleware,
   courseController.updateCourse
 ); // Updating existing course
 router.delete(
   "/courses/:id",
-  auth.isAuthenticated,
-  auth.isAdmin,
+  authMiddleware,
+  adminMiddleware,
   courseController.deleteCourse
 ); // Deleting existing course
 
