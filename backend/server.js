@@ -26,10 +26,9 @@ const corsOptions = {
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  exposedHeaders: ['set-cookie'],
 };
 
-app.set('trust proxy', 1);
+app.set("trust proxy", 1);
 app.use(cors(corsOptions));
 
 app.use(express.json());
@@ -54,7 +53,7 @@ const sessionOptions = {
   proxy: true, // Important for secure cookies behind a proxy
   cookie: {
     secure: true, // Always true since you're using HTTPS in production
-    sameSite: 'none', // Required for cross-origin requests
+    sameSite: "none", // Required for cross-origin requests
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     httpOnly: true,
     // Don't set domain unless you're using a custom domain
