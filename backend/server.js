@@ -47,14 +47,15 @@ const sessionOptions = {
   store: store,
   secret: process.env.SESSION_KEY,
   resave: false,
-  saveUninitialized: true, // Change to false for better security
+  saveUninitialized: false, // Prevents saving uninitialized sessions
   cookie: {
     secure: process.env.NODE_ENV === "production", // Enable in production
-    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
+    expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    httpOnly: true, // Prevent client-side access to cookies
   },
 };
+
 
 app.use(session(sessionOptions));
 
