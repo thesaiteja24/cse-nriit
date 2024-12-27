@@ -16,9 +16,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.get(`${backend_url}getuser`, {
         withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        
       });
       setUser(response.data.user);
     } catch (error) {
@@ -32,9 +30,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.post(`${backend_url}register`, data, {
         withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        
       });
       setUser(response.data.user);
       return { success: true, message: response.data.message };
@@ -52,9 +48,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.post(`${backend_url}login`, data, {
         withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        
       });
       setUser(response.data.user);
       return { success: true, message: response.data.message };

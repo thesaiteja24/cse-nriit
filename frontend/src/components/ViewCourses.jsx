@@ -7,9 +7,7 @@ const ViewCourses = () => {
   const backend_url = import.meta.env.VITE_BACKEND_URL;
   const axiosInstance = axios.create({
     withCredentials: true, // Important for session cookies
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    
     baseURL: backend_url,
   });
 

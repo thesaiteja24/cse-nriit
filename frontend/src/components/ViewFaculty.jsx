@@ -8,9 +8,7 @@ const ViewFaculty = () => {
   // Add this near the top of your ViewFaculty component
   const axiosInstance = axios.create({
     withCredentials: true, // Important for session cookies
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    
     baseURL: backend_url,
   });
 
