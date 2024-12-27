@@ -53,7 +53,7 @@ const sessionOptions = {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     httpOnly: true, // Prevent client-side access to cookies
-    sameSite: "none",
+    sameSite: "none"
   },
 };
 
