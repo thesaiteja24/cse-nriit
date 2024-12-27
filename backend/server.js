@@ -11,6 +11,7 @@ const configurePassport = require("./config/passport");
 const userRoutes = require("./routes/userRoutes");
 const courseRoutes = require("./routes/courseRoutes");
 const facultyRoutes = require("./routes/facultyRoutes");
+const isProduction = process.env.NODE_ENV === "production";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -28,7 +29,9 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-app.set("trust proxy", 1);
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
 app.use(cors(corsOptions));
 
 app.use(express.json());
@@ -45,18 +48,18 @@ const store = MongoStore.create({
 store.on("error", () => {
   console.log("ERROR in MONGO SESSION STORE", err);
 });
+
 const sessionOptions = {
   store: store,
   secret: process.env.SESSION_KEY,
   resave: false,
   saveUninitialized: false,
-  proxy: true, // Important for secure cookies behind a proxy
+  proxy: isProduction, // Only needed in production
   cookie: {
-    secure: true, // Always true since you're using HTTPS in production
-    sameSite: "none", // Required for cross-origin requests
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    secure: isProduction, // True in production, false in development
+    sameSite: isProduction ? "none" : "lax", // 'none' for prod, 'lax' for dev
+    maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    // Don't set domain unless you're using a custom domain
   },
 };
 
