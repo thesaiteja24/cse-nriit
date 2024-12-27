@@ -36,13 +36,15 @@ app.use(express.urlencoded({ extended: true }));
 
 const store = MongoStore.create({
   mongoUrl: db_url,
-  crypto: {
-    secret: process.env.SESSION_KEY,
-  },
+  secret: process.env.SESSION_KEY,
   touchAfter: 24 * 3600,
 });
 
+store.on("error", () => {
+  console.log("ERROR in MONGO SESSION STORE", err);
+});
 const sessionOptions = {
+  store: store,
   secret: process.env.SESSION_KEY,
   resave: false,
   saveUninitialized: true, // Change to false for better security
@@ -51,7 +53,7 @@ const sessionOptions = {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-  }
+  },
 };
 
 app.use(session(sessionOptions));
