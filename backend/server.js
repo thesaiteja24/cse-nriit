@@ -10,14 +10,13 @@ const MongoStore = require("connect-mongo");
 const cors = require("cors");
 const connectDB = require("./config/db");
 const configurePassport = require("./config/passport");
-const userRoutes = require("./routes/userRoutes");
-const courseRoutes = require("./routes/courseRoutes");
-const facultyRoutes = require("./routes/facultyRoutes");
+const Routes = require("./routes/index");
 
 // Define environment-specific constants
 const isProduction = process.env.NODE_ENV === "production";
 const port = process.env.PORT || 3000;
-const db_url = process.env.ATLAS_DB_URL || "mongodb://localhost:27017/cse-nriit";
+const db_url =
+  process.env.ATLAS_DB_URL || "mongodb://localhost:27017/cse-nriit";
 
 // Initialize Express app
 const app = express();
@@ -28,7 +27,7 @@ connectDB(db_url);
 // CORS Configuration
 const corsOptions = {
   origin: process.env.CLIENT_URL, // Allow requests from this origin
-  credentials: true,             // Allow credentials (cookies, authorization headers)
+  credentials: true, // Allow credentials (cookies, authorization headers)
   methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
   allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
 };
@@ -57,14 +56,14 @@ store.on("error", (err) => {
 const sessionOptions = {
   store: store,
   secret: process.env.SESSION_KEY, // Session encryption key
-  resave: false,                   // Prevent unnecessary session save
-  saveUninitialized: false,        // Do not save empty sessions
-  proxy: isProduction,             // Trust proxy in production
+  resave: false, // Prevent unnecessary session save
+  saveUninitialized: false, // Do not save empty sessions
+  proxy: isProduction, // Trust proxy in production
   cookie: {
-    secure: isProduction,          // Use secure cookies in production
+    secure: isProduction, // Use secure cookies in production
     sameSite: isProduction ? "none" : "lax", // SameSite policy based on environment
     maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expiration (7 days)
-    httpOnly: true,                // Prevent client-side access to cookies
+    httpOnly: true, // Prevent client-side access to cookies
   },
 };
 
@@ -74,36 +73,7 @@ app.use(session(sessionOptions));
 // Passport Configuration
 configurePassport(app);
 
-// Define Routes
-/**
- * @route   GET /
- * @desc    Health check endpoint
- * @access  Public
- */
-app.get("/", (req, res) => {
-  res.send("OK");
-});
-
-/**
- * @route   Varies (depends on userRoutes)
- * @desc    User-related routes
- * @access  Depends on route configuration
- */
-app.use("/auth", userRoutes);
-
-/**
- * @route   Varies (depends on courseRoutes)
- * @desc    Course-related routes
- * @access  Depends on route configuration
- */
-app.use("/courses", courseRoutes);
-
-/**
- * @route   Varies (depends on facultyRoutes)
- * @desc    Faculty-related routes
- * @access  Depends on route configuration
- */
-app.use("/faculty", facultyRoutes);
+app.use("/", Routes);
 
 // Error Handling Middleware
 /**
