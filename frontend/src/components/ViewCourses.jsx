@@ -137,10 +137,9 @@ const ViewCourses = () => {
         message: response.data.message || "Course saved successfully!",
       });
     } catch (error) {
-      console.error("Error saving course:", error);
       setFlashMessage({
         type: "error",
-        message: error.message || "Failed to save course.",
+        message: error.response?.data?.message || error.message || "Failed to save Faculty."
       });
     }
   };
@@ -164,10 +163,9 @@ const ViewCourses = () => {
         message: response.data.message || "Course deleted successfully!",
       });
     } catch (error) {
-      console.error("Error deleting course:", error);
       setFlashMessage({
         type: "error",
-        message: error.message || "Failed to delete course.",
+        message: error.response?.data?.message || error.message || "Failed to save Faculty."
       });
     }
   };

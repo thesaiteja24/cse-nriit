@@ -1,7 +1,11 @@
 const Course = require("../models/courseModel");
 
 class CourseController {
-  // Get all unique semesters
+  /**
+   * Get all unique semesters.
+   * @route   GET /courses/semesters
+   * @access  Public
+   */
   async getSemesters(req, res) {
     try {
       const semesters = await Course.distinct("semester");
@@ -20,7 +24,11 @@ class CourseController {
     }
   }
 
-  // Get all unique branches/departments
+  /**
+   * Get all unique branches/departments.
+   * @route   GET /courses/branches
+   * @access  Public
+   */
   async getBranches(req, res) {
     try {
       const departments = await Course.distinct("department");
@@ -31,15 +39,19 @@ class CourseController {
       }));
       res.json(formattedDepartments);
     } catch (error) {
-      console.error("Error fetching departments:", error);
+      console.error("Error fetching branches:", error);
       res.status(500).json({
         success: false,
-        message: "Error fetching departments",
+        message: "Error fetching branches",
       });
     }
   }
 
-  // Get all unique regulations
+  /**
+   * Get all unique regulations.
+   * @route   GET /courses/regulations
+   * @access  Public
+   */
   async getRegulations(req, res) {
     try {
       const regulations = await Course.distinct("regulation");
@@ -58,26 +70,50 @@ class CourseController {
     }
   }
 
-  // Get filtered courses
+  /**
+   * Get courses based on filters.
+   * @route   GET /courses
+   * @access  Public
+   */
   async getCourses(req, res) {
     try {
       const { semester, branch, regulation } = req.query;
       const query = {};
-
-      if (semester) query.semester = semester;
-      if (branch) query.department = branch;
-      if (regulation) query.regulation = regulation;
+      if (semester && semester !== "") {
+        query.semester = semester;
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Semester is required",
+        });
+      }
+      if (branch && branch !== "") {
+        query.department = branch;
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Branch is required",
+        });
+      }
+      if (regulation && regulation !== "") {
+        query.regulation = regulation;
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Regulation is required",
+        });
+      }
 
       const courses = await Course.find(query);
 
-      if (!courses || courses.length === 0) {
+      if (!courses.length) {
         return res.status(404).json({
           success: false,
           message: "No courses found for the provided criteria",
         });
       }
 
-      res.json({
+      res.status(200).json({
         success: true,
         data: courses,
         count: courses.length,
@@ -91,7 +127,11 @@ class CourseController {
     }
   }
 
-  // Add new course
+  /**
+   * Add a new course.
+   * @route   POST /courses
+   * @access  Admin
+   */
   async addCourse(req, res) {
     try {
       const requiredFields = [
@@ -105,7 +145,7 @@ class CourseController {
       ];
       const missingFields = requiredFields.filter((field) => !req.body[field]);
 
-      if (missingFields.length > 0) {
+      if (missingFields.length) {
         return res.status(400).json({
           success: false,
           message: `Missing required fields: ${missingFields.join(", ")}`,
@@ -139,7 +179,11 @@ class CourseController {
     }
   }
 
-  // Update course
+  /**
+   * Update an existing course by ID.
+   * @route   PUT /courses/:id
+   * @access  Admin
+   */
   async updateCourse(req, res) {
     try {
       const { id } = req.params;
@@ -169,7 +213,11 @@ class CourseController {
     }
   }
 
-  // Delete course
+  /**
+   * Delete a course by ID.
+   * @route   DELETE /courses/:id
+   * @access  Admin
+   */
   async deleteCourse(req, res) {
     try {
       const { id } = req.params;
