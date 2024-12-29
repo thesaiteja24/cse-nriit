@@ -17,6 +17,7 @@ const ViewCourses = () => {
   const [regulation, setRegulation] = useState("");
   const [courses, setCourses] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [flashMessage, setFlashMessage] = useState({ type: "", message: "" });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -129,6 +130,7 @@ const ViewCourses = () => {
       }
 
       setShowModal(false);
+      
       setSelectedCourse(null);
       fetchCourses();
 
@@ -319,16 +321,16 @@ const ViewCourses = () => {
                         {visibleDropdown === course._id && (
                           <div className="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg z-10 overflow-hidden">
                             <button
-                              onClick={() => openEditModal(course)}
-                              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors flex items-center space-x-2"
+                              onClick={() => openEditModal(fac)}
+                              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-300 transition-colors"
                             >
-                              <span>Edit</span>
+                              Edit
                             </button>
                             <button
-                              onClick={() => deleteCourse(course._id)}
-                              className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center space-x-2"
+                              onClick={() => deleteFaculty(fac._id)}
+                              className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-300 transition-colors"
                             >
-                              <span>Delete</span>
+                              Delete
                             </button>
                           </div>
                         )}
@@ -347,8 +349,15 @@ const ViewCourses = () => {
 
         {/* Add/Edit Course Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-            <div className="bg-[#F6F1E6] rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"
+           onClick={() => {
+      setShowModal(false);
+      setSelectedCourse(null);
+    }}
+          >
+            <div className="bg-[#F6F1E6] rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+            >
               <div className="p-6">
                 <h2 className="text-2xl font-semibold mb-6 text-black">
                   {selectedCourse ? "Edit Course" : "Add Course"}
