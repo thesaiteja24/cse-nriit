@@ -11,6 +11,7 @@ const ViewFaculty = () => {
     baseURL: backend_url,
   });
 
+  const [validationError, setValidationError] = useState(false);
   const location = useLocation();
   const [branch, setBranch] = useState("");
   const [faculty, setFaculty] = useState([]);
@@ -22,6 +23,12 @@ const ViewFaculty = () => {
 
   const [availableBranches, setAvailableBranches] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const validateContactNumber = (number) => {
+    const regex = /^[6-9]\d{9}$/; // Validates Indian mobile numbers (10 digits starting with 6-9)
+    setValidationError(!regex.test(number)); // If invalid, set validationError to true
+  };
+  
 
   const [newFaculty, setNewFaculty] = useState({
     name: "",
@@ -199,9 +206,13 @@ const ViewFaculty = () => {
       ? { ...selectedFaculty }
       : { ...newFaculty };
     updated[key] = value;
+  
+    if (key === "contact") validateContactNumber(value); // Validate contact number
+  
     if (selectedFaculty) setSelectedFaculty(updated);
     else setNewFaculty(updated);
   };
+  
 
   const toggleDropdown = (facultyId) => {
     setVisibleDropdown(visibleDropdown === facultyId ? null : facultyId);
@@ -315,13 +326,13 @@ const ViewFaculty = () => {
                           <div className="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg z-10 overflow-hidden">
                             <button
                               onClick={() => openEditModal(fac)}
-                              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors"
+                              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-300 transition-colors"
                             >
                               Edit
                             </button>
                             <button
                               onClick={() => deleteFaculty(fac._id)}
-                              className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+                              className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-300 transition-colors"
                             >
                               Delete
                             </button>
@@ -344,164 +355,172 @@ const ViewFaculty = () => {
 
         {/* Edit Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-            <div className="bg-[#F6F1E6] rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <h2 className="text-2xl font-semibold mb-6 text-black">
-                  Edit Faculty
-                </h2>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter faculty name"
-                      value={selectedFaculty.name}
-                      onChange={(e) =>
-                        handleInputChange("name", e.target.value)
-                      }
-                      className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Department
-                    </label>
-                    <select
-                      value={selectedFaculty.department}
-                      onChange={(e) =>
-                        handleInputChange("department", e.target.value)
-                      }
-                      className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                    >
-                      <option value="">Select Department</option>
-                      {availableBranches.map((branch) => (
-                        <option key={branch.id} value={branch.value}>
-                          {branch.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Contact Number
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="Enter contact number"
-                      value={selectedFaculty.contact}
-                      onChange={(e) =>
-                        handleInputChange("contact", e.target.value)
-                      }
-                      className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
-                  <button
-                    onClick={() => {
-                      setShowModal(false);
-                      setSelectedFaculty(null);
-                    }}
-                    className="w-full sm:w-auto bg-gray-400 px-6 py-2 rounded text-white hover:bg-gray-500 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={saveFaculty}
-                    className="w-full sm:w-auto bg-black px-6 py-2 rounded text-white hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-black"
-                  >
-                    Update
-                  </button>
-                </div>
-              </div>
-            </div>
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+    <div className="bg-[#F6F1E6] rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div className="p-6">
+        <h2 className="text-2xl font-semibold mb-6 text-black">Edit Faculty</h2>
+        <div className="space-y-4">
+          {/* Name Input */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Name</label>
+            <input
+              type="text"
+              placeholder="Enter faculty name"
+              value={selectedFaculty.name}
+              onChange={(e) => handleInputChange("name", e.target.value)}
+              className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+            />
           </div>
-        )}
+
+          {/* Department Select */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Department</label>
+            <select
+              value={selectedFaculty.department}
+              onChange={(e) => handleInputChange("department", e.target.value)}
+              className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+            >
+              <option value="">Select Department</option>
+              {availableBranches.map((branch) => (
+                <option key={branch.id} value={branch.value}>
+                  {branch.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Contact Number Input */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Contact Number</label>
+            <div className="flex space-x-2">
+              {/* Country Code */}
+              <div className="flex items-center border border-gray-400 p-3 rounded bg-gray-100">+91</div>
+
+              {/* Contact Input */}
+              <input
+                type="tel"
+                placeholder="Enter contact number"
+                value={selectedFaculty.contact}
+                onChange={(e) => handleInputChange("contact", e.target.value)}
+                className="flex-1 border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+              />
+            </div>
+
+            {/* Validation Error Message */}
+            {validationError && (
+              <p className="text-red-500 text-sm mt-2">Please enter a valid 10-digit mobile number.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
+          <button
+            onClick={() => {
+              setShowModal(false);
+              setSelectedFaculty(null);
+            }}
+            className="w-full sm:w-auto bg-gray-400 px-6 py-2 rounded text-white hover:bg-gray-500 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={saveFaculty}
+            className="w-full sm:w-auto bg-black px-6 py-2 rounded text-white hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-black"
+          >
+            Update
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
         {/* Add Modal */}
         {showAddModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-            <div className="bg-[#F6F1E6] rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <h2 className="text-2xl font-semibold mb-6 text-black">
-                  Add Faculty
-                </h2>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter faculty name"
-                      value={newFaculty.name}
-                      onChange={(e) =>
-                        handleInputChange("name", e.target.value)
-                      }
-                      className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Department
-                    </label>
-                    <select
-                      value={newFaculty.department}
-                      onChange={(e) =>
-                        handleInputChange("department", e.target.value)
-                      }
-                      className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                    >
-                      <option value="">Select Department</option>
-                      {availableBranches.map((branch) => (
-                        <option key={branch.id} value={branch.value}>
-                          {branch.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Contact Number
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="Enter contact number"
-                      value={newFaculty.contact}
-                      onChange={(e) =>
-                        handleInputChange("contact", e.target.value)
-                      }
-                      className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
-                  <button
-                    onClick={() => setShowAddModal(false)}
-                    className="w-full sm:w-auto bg-gray-400 px-6 py-2 rounded text-white hover:bg-gray-500 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={saveFaculty}
-                    className="w-full sm:w-auto bg-black px-6 py-2 rounded text-white hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-black"
-                  >
-                    Save
-                  </button>
-                </div>
-              </div>
-            </div>
+  <div
+    className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"
+    onClick={() => setShowAddModal(false)} // Hide modal on background click
+  >
+    <div
+      className="bg-[#F6F1E6] rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+      onClick={(e) => e.stopPropagation()} // Prevent hiding when clicking inside the modal
+    >
+      <div className="p-6">
+        <h2 className="text-2xl font-semibold mb-6 text-black">Add Faculty</h2>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Name</label>
+            <input
+              type="text"
+              placeholder="Enter faculty name"
+              value={newFaculty.name}
+              onChange={(e) => handleInputChange("name", e.target.value)}
+              className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+            />
           </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Department</label>
+            <select
+              value={newFaculty.department}
+              onChange={(e) => handleInputChange("department", e.target.value)}
+              className="w-full border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+            >
+              <option value="">Select Department</option>
+              {availableBranches.map((branch) => (
+                <option key={branch.id} value={branch.value}>
+                  {branch.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+         <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">Contact Number</label>
+          <div className="flex space-x-2">
+            {/* Country Code Box */}
+            <div className="flex items-center border border-gray-400 p-3 rounded bg-gray-100">
+              +91
+            </div>
+
+            {/* Mobile Number Input */}
+            <input
+              type="tel"
+              placeholder="Enter contact number"
+              value={newFaculty.contact}
+              onChange={(e) => handleInputChange("contact", e.target.value)}
+              className="flex-1 border border-gray-400 p-3 rounded text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+            />
+          </div>
+
+        {/* Error Message */}
+        {validationError && (
+          <p className="text-red-500 text-sm mt-2">Please enter a valid 10-digit mobile number.</p>
         )}
+      </div>
+
+        </div>
+
+        <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
+          <button
+            onClick={() => setShowAddModal(false)}
+            className="w-full sm:w-auto bg-gray-400 px-6 py-2 rounded text-white hover:bg-gray-500 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={saveFaculty}
+            className="w-full sm:w-auto bg-black px-6 py-2 rounded text-white hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-black"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
       </div>
     </>
   );

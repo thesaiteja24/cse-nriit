@@ -47,33 +47,34 @@ function CardComponent({ id, name, contact, type, onDelete, onEdit }) {
     </svg>
   </button>
   {isDropdownVisible && (
-    <div className="z-10 absolute mt-2 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
-      <ul className="py-2">
-        <li>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit(id);
-            }}
-            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-          >
-            Edit
-          </button>
-        </li>
-        <li>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(id);
-            }}
-            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-          >
-            Delete
-          </button>
-        </li>
-      </ul>
-    </div>
-  )}
+  <div className="z-10 absolute mt-2 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+    <ul className="py-2">
+      <li>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(id);
+          }}
+          className="block w-full text-left px-4 py-2 text-sm text-gray-800 border border-black rounded-md transition-transform transform hover:scale-105 hover:shadow-lg hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+        >
+          Edit
+        </button>
+      </li>
+      <li>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(id);
+          }}
+          className="block w-full text-left px-4 py-2 text-sm text-gray-800 border border-black rounded-md transition-transform transform hover:scale-105 hover:shadow-lg hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+        >
+          Delete
+        </button>
+      </li>
+    </ul>
+  </div>
+)}
+
 </div>
 
     </div>
