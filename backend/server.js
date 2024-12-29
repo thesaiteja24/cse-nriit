@@ -1,7 +1,9 @@
+// Load environment variables in non-production environments
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
+// Import dependencies
 const express = require("express");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
@@ -12,69 +14,105 @@ const userRoutes = require("./routes/userRoutes");
 const courseRoutes = require("./routes/courseRoutes");
 const facultyRoutes = require("./routes/facultyRoutes");
 
-const app = express();
+// Define environment-specific constants
+const isProduction = process.env.NODE_ENV === "production";
 const port = process.env.PORT || 3000;
-const db_url =
-  process.env.ATLAS_DB_URL || "mongodb://localhost:27017/cse-nriit";
+const db_url = process.env.ATLAS_DB_URL || "mongodb://localhost:27017/cse-nriit";
 
-// Connect to DB
+// Initialize Express app
+const app = express();
+
+// Connect to MongoDB
 connectDB(db_url);
 
-// Middleware
+// CORS Configuration
 const corsOptions = {
-  origin: process.env.CLIENT_URL,
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  origin: process.env.CLIENT_URL, // Allow requests from this origin
+  credentials: true,             // Allow credentials (cookies, authorization headers)
+  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
+  allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
 };
-app.use(cors());
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Apply CORS middleware
+if (isProduction) {
+  app.set("trust proxy", 1); // Trust proxy in production for secure cookies
+}
+app.use(cors(corsOptions));
 
-// Session configuration
-app.use(
-  session({
-    secret: process.env.SESSION_KEY,
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: db_url,
-      ttl: 24 * 60 * 60,
-    }),
-    cookie: {
-      secure: process.env.NODE_ENV === "production",
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000,
-      sameSite: "strict",
-    },
-  })
-);
+// Middleware for parsing request bodies
+app.use(express.json()); // Parse JSON payloads
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded payloads
 
-// Session security middleware
-app.use((req, res, next) => {
-  if (req.session && !req.session.regenerate) {
-    req.session.regenerate = (cb) => {
-      cb();
-    };
-  }
-  if (req.session && !req.session.save) {
-    req.session.save = (cb) => {
-      cb();
-    };
-  }
-  next();
+// Session Configuration
+const store = MongoStore.create({
+  mongoUrl: db_url, // MongoDB connection URL
+  secret: process.env.SESSION_KEY, // Session encryption key
+  touchAfter: 24 * 3600, // Session store update frequency (in seconds)
 });
 
-// Passport
+store.on("error", (err) => {
+  console.error("ERROR in Mongo Session Store:", err);
+});
+
+const sessionOptions = {
+  store: store,
+  secret: process.env.SESSION_KEY, // Session encryption key
+  resave: false,                   // Prevent unnecessary session save
+  saveUninitialized: false,        // Do not save empty sessions
+  proxy: isProduction,             // Trust proxy in production
+  cookie: {
+    secure: isProduction,          // Use secure cookies in production
+    sameSite: isProduction ? "none" : "lax", // SameSite policy based on environment
+    maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expiration (7 days)
+    httpOnly: true,                // Prevent client-side access to cookies
+  },
+};
+
+// Apply session middleware
+app.use(session(sessionOptions));
+
+// Passport Configuration
 configurePassport(app);
 
-// Routes
-app.use("/", userRoutes);
-app.use("/", courseRoutes);
-app.use("/", facultyRoutes)
+// Define Routes
+/**
+ * @route   GET /
+ * @desc    Health check endpoint
+ * @access  Public
+ */
+app.get("/", (req, res) => {
+  res.send("OK");
+});
 
-// Error handling
+/**
+ * @route   Varies (depends on userRoutes)
+ * @desc    User-related routes
+ * @access  Depends on route configuration
+ */
+app.use("/", userRoutes);
+
+/**
+ * @route   Varies (depends on courseRoutes)
+ * @desc    Course-related routes
+ * @access  Depends on route configuration
+ */
+app.use("/", courseRoutes);
+
+/**
+ * @route   Varies (depends on facultyRoutes)
+ * @desc    Faculty-related routes
+ * @access  Depends on route configuration
+ */
+app.use("/", facultyRoutes);
+
+// Error Handling Middleware
+/**
+ * @desc    Global error handler for unhandled errors
+ * @param   {Error} err - Error object
+ * @param   {Request} req - Express request object
+ * @param   {Response} res - Express response object
+ * @param   {Function} next - Next middleware function
+ */
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
@@ -83,7 +121,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
+// Start the Server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

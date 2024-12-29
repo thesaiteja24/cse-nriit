@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { Link, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { Helmet } from "react-helmet";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
-  const backend_url = import.meta.env.VITE_BACKEND_URL;
+  const location = useLocation();
+  const { user, login } = useAuth();
+  const from = location.state?.from?.pathname || "/courses";
 
   const {
     register,
@@ -16,8 +18,21 @@ export default function Login() {
     formState: { errors },
   } = useForm();
 
-  const [flashMessage, setFlashMessage] = useState({ type: "", message: "" });
+  const [flashMessage, setFlashMessage] = useState({
+    type: location.state?.type || "",
+    message: location.state?.message || "",
+  });
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (flashMessage.message) {
+      const timer = setTimeout(() => {
+        setFlashMessage({ type: "", message: "" });
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [flashMessage]);
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
@@ -25,24 +40,27 @@ export default function Login() {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(`${backend_url}login`, data);
-      setFlashMessage({ type: "success", message: response.data.message });
+      const result = await login(data);
+      if (result.success) {
+        setFlashMessage({ type: "success", message: result.message });
 
-      // Clear flash message after 5 seconds
-      setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
-      navigate("/courses", {
-        state: { message: response.data.message, type: "success" },
+        navigate(from, {
+          state: { message: result.message, type: "success" },
+        });
+      } else {
+        setFlashMessage({ type: "error", message: result.message });
+      }
+    } catch (error) {
+      setFlashMessage({
+        type: "error",
+        message: "An error occurred during login",
       });
-    } catch (err) {
-      const errorMessage =
-        err.response?.data.message || "An error occurred during login";
-      setFlashMessage({ type: "error", message: errorMessage });
-
-      // Clear flash message after 5 seconds
-      setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
     }
   };
 
+  if (user) {
+    return <Navigate to="/courses" replace />;
+  }
   return (
     <>
       <Helmet>

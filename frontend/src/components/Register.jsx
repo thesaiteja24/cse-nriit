@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { Helmet } from "react-helmet";
+import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
   const navigate = useNavigate();
-  const backend_url = import.meta.env.VITE_BACKEND_URL;
+  const { register: registerUser } = useAuth();
 
   const {
     register,
@@ -19,27 +20,38 @@ export default function Register() {
   const [flashMessage, setFlashMessage] = useState({ type: "", message: "" });
   const [showPassword, setShowPassword] = useState(false);
 
+  useEffect(() => {
+    if (flashMessage.message) {
+      const timer = setTimeout(() => {
+        setFlashMessage({ type: "", message: "" });
+      }, 3000);
+
+      // Cleanup the timeout on component unmount or when flashMessage changes
+      return () => clearTimeout(timer);
+    }
+  }, [flashMessage.message]);
+
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(backend_url + "register", data);
-      setFlashMessage({ type: "success", message: response.data.message });
+      const result = await registerUser(data);
 
-      // Clear flash message after 5 seconds
-      setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
-      navigate("/courses", {
-        state: { message: response.data.message, type: "success" },
-      });
+      if (result.success) {
+        setFlashMessage({ type: "success", message: result.message });
+        navigate("/courses", {
+          state: { message: result.message, type: "success" },
+        });
+      } else {
+        setFlashMessage({ type: "error", message: result.message });
+      }
     } catch (err) {
-      const errorMessage =
-        err.response?.data.message || "An error occurred during registration";
-      setFlashMessage({ type: "error", message: errorMessage });
-
-      // Clear flash message after 5 seconds
-      setTimeout(() => setFlashMessage({ type: "", message: "" }), 5000);
+      setFlashMessage({
+        type: "error",
+        message: "An error occurred during registration",
+      });
     }
   };
 
