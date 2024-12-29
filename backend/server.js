@@ -89,21 +89,21 @@ app.get("/", (req, res) => {
  * @desc    User-related routes
  * @access  Depends on route configuration
  */
-app.use("/", userRoutes);
+app.use("/auth", userRoutes);
 
 /**
  * @route   Varies (depends on courseRoutes)
  * @desc    Course-related routes
  * @access  Depends on route configuration
  */
-app.use("/", courseRoutes);
+app.use("/courses", courseRoutes);
 
 /**
  * @route   Varies (depends on facultyRoutes)
  * @desc    Faculty-related routes
  * @access  Depends on route configuration
  */
-app.use("/", facultyRoutes);
+app.use("/faculty", facultyRoutes);
 
 // Error Handling Middleware
 /**
