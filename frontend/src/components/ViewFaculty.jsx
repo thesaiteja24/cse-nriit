@@ -8,7 +8,6 @@ const ViewFaculty = () => {
   // Add this near the top of your ViewFaculty component
   const axiosInstance = axios.create({
     withCredentials: true, // Important for session cookies
-    
     baseURL: backend_url,
   });
 
@@ -109,33 +108,51 @@ const ViewFaculty = () => {
 
   const saveFaculty = async () => {
     try {
+      // Validate required fields
+      const facultyData = selectedFaculty || newFaculty;
+      const { name, contact, department } = facultyData;
+  
+      if (!name || !contact || !department) {
+        setFlashMessage({
+          type: "error",
+          message: "Name, contact, and department are required",
+        });
+        return;
+      }
+  
       const url = selectedFaculty
         ? `${backend_url}faculty/${selectedFaculty._id}`
         : `${backend_url}faculty`;
       const method = selectedFaculty ? "put" : "post";
-
-      const response = await axiosInstance[method](
-        url,
-        selectedFaculty || newFaculty
-      );
-
-      if (!response.data.success) {
-        throw new Error(response.data.message || "Failed to save Faculty");
-      }
-
-      setShowModal(false);
-      setShowAddModal(false);
-      setSelectedFaculty(null);
-      fetchFaculty();
-
-      setFlashMessage({
-        type: "success",
-        message: response.data.message || "Faculty saved successfully!",
+  
+      const response = await axiosInstance[method](url, {
+        name,
+        contact,
+        department
       });
+  
+      if (response.data.success) {
+        // Reset form state
+        setShowModal(false);
+        setShowAddModal(false);
+        setSelectedFaculty(null);
+        setNewFaculty({ name: '', contact: '', department: '' });
+        
+        // Fetch updated faculty list
+        await fetchFaculty();
+  
+        // Show success message
+        setFlashMessage({
+          type: "success",
+          message: response.data.message
+        });
+      } else {
+        throw new Error(response.data.message);
+      }
     } catch (error) {
       setFlashMessage({
         type: "error",
-        message: error.message || "Failed to save Faculty.",
+        message: error.response?.data?.message || error.message || "Failed to save Faculty."
       });
     }
   };
@@ -162,7 +179,7 @@ const ViewFaculty = () => {
     } catch (error) {
       setFlashMessage({
         type: "error",
-        message: error.message || "Failed to delete Faculty.",
+        message: error.response?.data?.message || error.message || "Failed to save Faculty."
       });
     }
   };
