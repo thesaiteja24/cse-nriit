@@ -73,7 +73,7 @@ const LandingPage = () => {
         <p className="text-gray-700 leading-relaxed max-w-4xl mx-auto text-sm sm:text-base">
           Welcome to Timetable Generator! A platform to generate Time Table.
           where we take the burden of scheduling from you. Our team{" "}
-          <b>Sai Teja, Shanwaz, Gayatri</b>, and <b>Musthq</b> has
+          <b>Sai Teja, Shanwaz, Gayathri</b>, and <b>Mushtaq</b> has
           developed an easy-to-use Timetable Generator to simplify the process
           of creating and managing your schedules efficiently.
         </p>
@@ -90,10 +90,10 @@ const LandingPage = () => {
               Manideep
             </a> */}
             <a href="https://www.linkedin.com/in/panidepu-gayathri-56814326a/" target="_blank" rel="noopener noreferrer" className="hover:underline">
-              Gayatri
+            Gayathri
             </a>
             <a href="https://www.linkedin.com/in/mohammad-mushtaq-ahamad-436305256/" target="_blank" rel="noopener noreferrer" className="hover:underline">
-              Musthq
+              Mushtaq
             </a>
           </div>
         </div>
