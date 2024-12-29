@@ -61,9 +61,9 @@ const ViewCourses = () => {
     setIsLoading(true);
     try {
       const [semestersRes, branchesRes, regulationsRes] = await Promise.all([
-        axiosInstance.get(`${backend_url}api/semesters`),
-        axiosInstance.get(`${backend_url}api/branches`),
-        axiosInstance.get(`${backend_url}api/regulations`),
+        axiosInstance.get(`${backend_url}courses/api/semesters`),
+        axiosInstance.get(`${backend_url}courses/api/branches`),
+        axiosInstance.get(`${backend_url}courses/api/regulations`),
       ]);
 
       setAvailableSemesters(semestersRes.data);
