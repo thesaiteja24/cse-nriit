@@ -9,29 +9,30 @@ const router = express.Router();
  * @route   GET /
  * @desc    Health check endpoint
  * @access  Public
+ * @returns {String} Returns "OK" to confirm that the server is running.
  */
 router.get("/", (req, res) => {
   res.send("OK");
 });
 
 /**
- * @route   Varies (depends on userRoutes)
- * @desc    User-related routes
- * @access  Depends on route configuration
+ * @route   /auth
+ * @desc    User authentication routes (register, login, etc.)
+ * @access  Public (some routes may be protected)
  */
 router.use("/auth", userRoutes);
 
 /**
- * @route   Varies (depends on courseRoutes)
- * @desc    Course-related routes
- * @access  Depends on route configuration
+ * @route   /courses
+ * @desc    Course-related routes (CRUD operations, filters, etc.)
+ * @access  Protected (some routes may require admin access)
  */
 router.use("/courses", courseRoutes);
 
 /**
- * @route   Varies (depends on facultyRoutes)
- * @desc    Faculty-related routes
- * @access  Depends on route configuration
+ * @route   /faculty
+ * @desc    Faculty-related routes (CRUD operations, etc.)
+ * @access  Protected (admin access required for some operations)
  */
 router.use("/faculty", facultyRoutes);
 
