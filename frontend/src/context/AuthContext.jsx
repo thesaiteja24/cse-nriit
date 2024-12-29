@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const response = await axios.get(`${backend_url}getuser`, {
+      const response = await axios.get(`${backend_url}auth/getuser`, {
         withCredentials: true,
         
       });
@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (data) => {
     try {
-      const response = await axios.post(`${backend_url}register`, data, {
+      const response = await axios.post(`${backend_url}auth/register`, data, {
         withCredentials: true,
         
       });
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (data) => {
     try {
-      const response = await axios.post(`${backend_url}login`, data, {
+      const response = await axios.post(`${backend_url}auth/login`, data, {
         withCredentials: true,
         
       });
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await axios.post(
-        `${backend_url}logout`,
+        `${backend_url}auth/logout`,
         {},
         {
           withCredentials: true,
