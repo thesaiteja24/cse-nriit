@@ -11,6 +11,7 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 const configurePassport = require("./config/passport");
 const Routes = require("./routes/index");
+const errorHandler = require("./middlewares/errorHandler");
 
 // Define environment-specific constants
 const isProduction = process.env.NODE_ENV === "production";
@@ -73,23 +74,11 @@ app.use(session(sessionOptions));
 // Passport Configuration
 configurePassport(app);
 
+// Mount Routes
 app.use("/", Routes);
 
-// Error Handling Middleware
-/**
- * @desc    Global error handler for unhandled errors
- * @param   {Error} err - Error object
- * @param   {Request} req - Express request object
- * @param   {Response} res - Express response object
- * @param   {Function} next - Next middleware function
- */
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    message: "Internal Server Error",
-    error: process.env.NODE_ENV === "development" ? err.message : undefined,
-  });
-});
+// Error handling middleware
+app.use(errorHandler);
 
 // Start the Server
 app.listen(port, () => {
