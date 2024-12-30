@@ -58,5 +58,5 @@ const initDB = async () => {
   }
 };
 
-// Run the main function
+// main function
 main();
