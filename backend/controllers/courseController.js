@@ -1,3 +1,15 @@
+/**
+ * Course Controller
+ * 
+ * This module handles operations related to courses, such as retrieving courses based on filters,
+ * adding new courses, updating existing courses, and deleting courses.
+ *
+ * Functionalities:
+ * - Fetch dropdown options like semesters, branches, and regulations.
+ * - Perform CRUD operations on course data.
+ */
+
+
 const Course = require("../models/courseModel");
 
 class CourseController {

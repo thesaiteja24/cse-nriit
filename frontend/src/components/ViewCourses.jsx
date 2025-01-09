@@ -321,13 +321,13 @@ const ViewCourses = () => {
                         {visibleDropdown === course._id && (
                           <div className="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg z-10 overflow-hidden">
                             <button
-                              onClick={() => openEditModal(fac)}
+                              onClick={() => openEditModal(course)}
                               className="w-full px-4 py-2 text-left text-sm hover:bg-gray-300 transition-colors"
                             >
                               Edit
                             </button>
                             <button
-                              onClick={() => deleteFaculty(fac._id)}
+                              onClick={() => deleteCourse(course._id)}
                               className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-300 transition-colors"
                             >
                               Delete

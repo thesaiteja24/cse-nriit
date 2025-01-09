@@ -1,3 +1,15 @@
+/**
+ * Faculty Controller
+ * 
+ * This module handles operations related to faculty members, including retrieving faculty data
+ * based on departments, adding new faculty members, updating their details, and removing faculty records.
+ *
+ * Functionalities:
+ * - Fetch faculty details filtered by department.
+ * - Perform CRUD operations on faculty data.
+ */
+
+
 const Faculty = require("../models/facultyModel");
 
 class FacultyController {
