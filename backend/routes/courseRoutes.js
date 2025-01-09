@@ -8,25 +8,11 @@ router.get("/api/semesters", courseController.getSemesters);
 router.get("/api/branches", courseController.getBranches);
 router.get("/api/regulations", courseController.getRegulations);
 
+router.use(authMiddleware);
 // Course CRUD operations
-router.get("/courses", courseController.getCourses); // Get courses based on filters
-router.post(
-  "/courses",
-  authMiddleware,
-  adminMiddleware,
-  courseController.addCourse
-); // Adding new course
-router.put(
-  "/courses/:id",
-  authMiddleware,
-  adminMiddleware,
-  courseController.updateCourse
-); // Updating existing course
-router.delete(
-  "/courses/:id",
-  authMiddleware,
-  adminMiddleware,
-  courseController.deleteCourse
-); // Deleting existing course
+router.get("/", courseController.getCourses); // Get courses based on filters
+router.post("/", adminMiddleware, courseController.addCourse); // Adding new course
+router.put("/:id", adminMiddleware, courseController.updateCourse); // Updating existing course
+router.delete("/:id", adminMiddleware, courseController.deleteCourse); // Deleting existing course
 
 module.exports = router;

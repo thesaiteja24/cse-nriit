@@ -71,7 +71,7 @@ const ViewFaculty = () => {
   const fetchDropdownOptions = async () => {
     setIsLoading(true);
     try {
-      const branchesRes = await axiosInstance.get(`${backend_url}api/branches`);
+      const branchesRes = await axiosInstance.get(`${backend_url}courses/api/branches`);
       setAvailableBranches(branchesRes.data);
     } catch (error) {
       setFlashMessage({
@@ -92,7 +92,7 @@ const ViewFaculty = () => {
       return;
     }
     try {
-      const response = await axiosInstance.get(`${backend_url}api/faculty`, {
+      const response = await axiosInstance.get(`${backend_url}faculty`, {
         params: { department: branch },
       });
 

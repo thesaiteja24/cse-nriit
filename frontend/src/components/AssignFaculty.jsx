@@ -5,6 +5,10 @@ import { Helmet } from "react-helmet";
 
 const AssignFaculty = () => {
   const backend_url = import.meta.env.VITE_BACKEND_URL;
+  const axiosInstance = axios.create({
+    withCredentials: true, // Important for session cookies
+    baseURL: backend_url,
+  });
 
   const location = useLocation();
   const [semester, setSemester] = useState("");
@@ -104,9 +108,9 @@ const AssignFaculty = () => {
     setIsLoading(true);
     try {
       const [semestersRes, branchesRes, regulationsRes] = await Promise.all([
-        axios.get(`${backend_url}api/semesters`),
-        axios.get(`${backend_url}api/branches`),
-        axios.get(`${backend_url}api/regulations`),
+        axios.get(`${backend_url}courses/api/semesters`),
+        axios.get(`${backend_url}courses/api/branches`),
+        axios.get(`${backend_url}courses/api/regulations`),
       ]);
 
       setAvailableSemesters(semestersRes.data);
@@ -133,7 +137,7 @@ const AssignFaculty = () => {
     }
 
     try {
-      const response = await axios.get(`${backend_url}courses`, {
+      const response = await axiosInstance.get(`${backend_url}courses`, {
         params: { semester, branch, regulation },
       });
 
@@ -170,7 +174,7 @@ const AssignFaculty = () => {
       return;
     }
     try {
-      const response = await axios.get(`${backend_url}api/faculty`, {
+      const response = await axiosInstance.get(`${backend_url}faculty`, {
         params: { department: branch },
       });
 
@@ -203,9 +207,7 @@ const AssignFaculty = () => {
   const deleteAssignment = (Id) => {
     try {
       // Filter out the course with the given courseId
-      const updatedAssigned = assigned.filter(
-        (item) => item.courseId !== Id
-      );
+      const updatedAssigned = assigned.filter((item) => item.courseId !== Id);
 
       // Update the state with the new filtered array
       setAssigned(updatedAssigned);
