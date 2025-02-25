@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { toast } from "react-toastify";
 
 export const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -15,15 +16,10 @@ export const ProtectedRoute = ({ children }) => {
 
   if (!user) {
     return (
-      <Navigate
-        to="/login"
-        state={{
-          from: location,
-          message: "You must be logged in to access this page.",
-          type: "error",
-        }}
-        replace
-      />
+      <>
+        {toast.error("You must be logged in to access this page")}
+        <Navigate to="/login" replace />
+      </>
     );
   }
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { Helmet } from "react-helmet";
+import { toast } from "react-toastify";
 
 const AssignFaculty = () => {
   const backend_url = import.meta.env.VITE_BACKEND_URL;
@@ -10,14 +10,13 @@ const AssignFaculty = () => {
     baseURL: backend_url,
   });
 
-  const location = useLocation();
+
   const [semester, setSemester] = useState("");
   const [branch, setBranch] = useState("");
   const [regulation, setRegulation] = useState("");
   const [courses, setCourses] = useState([]);
   const [faculty, setFaculty] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [flashMessage, setFlashMessage] = useState({ type: "", message: "" });
   const [isLoading, setIsLoading] = useState(true);
   const [selectedFaculty1, setSelectedFaculty1] = useState("");
   const [selectedFaculty2, setSelectedFaculty2] = useState("");
@@ -35,28 +34,15 @@ const AssignFaculty = () => {
     fetchDropdownOptions();
   }, []);
 
-  useEffect(() => {
-    if (flashMessage.message) {
-      const timer = setTimeout(() => {
-        setFlashMessage({ type: "", message: "" });
-      }, 5000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [flashMessage]);
-
   const assignFaculty = () => {
     try {
       if (!selectedCourse) {
-        setFlashMessage({ type: "error", message: "Please select a course" });
+        toast.warning("Please Select a Course");
         return;
       }
 
       if (!selectedFaculty1 && !selectedFaculty2 && !selectedFaculty3) {
-        setFlashMessage({
-          type: "error",
-          message: "Please select at least one faculty for the course",
-        });
+        toast.warning("Please select atleast one faculty for the course");
         return;
       }
 
@@ -91,16 +77,10 @@ const AssignFaculty = () => {
       setSelectedFaculty2("");
       setSelectedFaculty3("");
 
-      setFlashMessage({
-        type: "success",
-        message: "Faculty assigned successfully!",
-      });
+      toast.success("Faculty assigned successfully");
     } catch (err) {
       console.error("Error assigning faculty:", err);
-      setFlashMessage({
-        type: "error",
-        message: "Failed to assign faculty. Please try again.",
-      });
+      toast.error("Failed to assign facultyy. Please try again");
     }
   };
 
@@ -118,10 +98,7 @@ const AssignFaculty = () => {
       setAvailableRegulations(regulationsRes.data);
     } catch (error) {
       console.error("Error fetching dropdown options:", error);
-      setFlashMessage({
-        type: "error",
-        message: "Failed to load dropdown options.",
-      });
+      toast.error("Failed to load dropdown options");
     } finally {
       setIsLoading(false);
     }
@@ -129,10 +106,7 @@ const AssignFaculty = () => {
 
   const fetchCourses = async () => {
     if (!semester || !branch || !regulation) {
-      setFlashMessage({
-        type: "error",
-        message: "Please select all filters before viewing courses.",
-      });
+      toast.warning("Please select all filters before viewing courses");
       return;
     }
 
@@ -146,31 +120,19 @@ const AssignFaculty = () => {
       }
 
       setCourses(response.data.data);
-      setFlashMessage({
-        type: "success",
-        message: `Found ${response.data.count} courses`,
-      });
+      toast.success(`Found ${response.data.count} courses`);
     } catch (error) {
       console.error("Error fetching courses:", error);
-      setFlashMessage({
-        type: "error",
-        message: error.message || "Failed to fetch courses.",
-      });
+      toast.error("Failed to fetch courses");
     }
   };
 
   const fetchFaculty = async () => {
     if (!branch) {
-      setFlashMessage({
-        type: "error",
-        message: "Please select a valid branch.",
-      });
+      toast.error("Please select a valid branch");
       return;
     } else if (!courses) {
-      setFlashMessage({
-        type: "error",
-        message: "Courses are not available for current selection",
-      });
+      toast.error("Courses are not available for current slection");
       return;
     }
     try {
@@ -183,16 +145,10 @@ const AssignFaculty = () => {
       }
 
       setFaculty(response.data.data);
-      setFlashMessage({
-        type: "success",
-        message: `Found ${response.data.count} faculty`,
-      });
+      toast.success(`Found ${response.data.count} faculty`);
     } catch (error) {
       console.error("Error fetching faculty:", error);
-      setFlashMessage({
-        type: "error",
-        message: error.message || "Failed to fetch faculty.",
-      });
+      toast.error(error.message || "Failed to fetch faculty");
     }
   };
 
@@ -211,17 +167,10 @@ const AssignFaculty = () => {
 
       // Update the state with the new filtered array
       setAssigned(updatedAssigned);
-
-      setFlashMessage({
-        type: "success",
-        message: "Course deleted successfully!",
-      });
+      toast.success("Course deleted successfully");
     } catch (error) {
       console.error("Error deleting course:", error);
-      setFlashMessage({
-        type: "error",
-        message: "Failed to delete course. Please try again.",
-      });
+      toast.error("Failed to delete course. Please try again.");
     }
   };
   return (
@@ -288,17 +237,6 @@ const AssignFaculty = () => {
             </button>
           </div>
         </div>
-
-        {/* Flash Message */}
-        {flashMessage.message && (
-          <div
-            className={`fixed bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-96 z-50 p-4 rounded-lg text-white shadow-lg transition-all transform duration-500 ${
-              flashMessage.type === "success" ? "bg-green-500" : "bg-red-500"
-            }`}
-          >
-            {flashMessage.message}
-          </div>
-        )}
 
         {/* Assign Faculty */}
 

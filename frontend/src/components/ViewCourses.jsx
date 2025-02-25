@@ -1,24 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { Helmet } from "react-helmet";
+import { toast } from "react-toastify";
 
 const ViewCourses = () => {
   const backend_url = import.meta.env.VITE_BACKEND_URL;
   const axiosInstance = axios.create({
     withCredentials: true, // Important for session cookies
-    
+
     baseURL: backend_url,
   });
 
-  const location = useLocation();
   const [semester, setSemester] = useState("");
   const [branch, setBranch] = useState("");
   const [regulation, setRegulation] = useState("");
   const [courses, setCourses] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [flashMessage, setFlashMessage] = useState({ type: "", message: "" });
+
   const [isLoading, setIsLoading] = useState(true);
 
   const [newCourse, setNewCourse] = useState({
@@ -48,16 +46,6 @@ const ViewCourses = () => {
     return () => window.removeEventListener("click", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    if (flashMessage.message) {
-      const timer = setTimeout(() => {
-        setFlashMessage({ type: "", message: "" });
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [flashMessage]);
-
   const fetchDropdownOptions = async () => {
     setIsLoading(true);
     try {
@@ -72,10 +60,7 @@ const ViewCourses = () => {
       setAvailableRegulations(regulationsRes.data);
     } catch (error) {
       console.error("Error fetching dropdown options:", error);
-      setFlashMessage({
-        type: "error",
-        message: "Failed to load dropdown options.",
-      });
+      toast.error("Failed to load dropdown options");
     } finally {
       setIsLoading(false);
     }
@@ -83,10 +68,7 @@ const ViewCourses = () => {
 
   const fetchCourses = async () => {
     if (!semester || !branch || !regulation) {
-      setFlashMessage({
-        type: "error",
-        message: "Please select all filters before viewing courses.",
-      });
+      toast.error("Please select all filters before viewing courses");
       return;
     }
 
@@ -100,16 +82,10 @@ const ViewCourses = () => {
       }
 
       setCourses(response.data.data);
-      setFlashMessage({
-        type: "success",
-        message: `Found ${response.data.count} courses`,
-      });
+      toast.success(`Found ${response.data.count} courses`);
     } catch (error) {
+      toast.error(error.response.data.message);
       console.error("Error fetching courses:", error);
-      setFlashMessage({
-        type: "error",
-        message: error.message || "Failed to fetch courses.",
-      });
     }
   };
 
@@ -130,19 +106,16 @@ const ViewCourses = () => {
       }
 
       setShowModal(false);
-      
+
       setSelectedCourse(null);
       fetchCourses();
-
-      setFlashMessage({
-        type: "success",
-        message: response.data.message || "Course saved successfully!",
-      });
+      toast.success(response.data.message || "Course saved successfully");
     } catch (error) {
-      setFlashMessage({
-        type: "error",
-        message: error.response?.data?.message || error.message || "Failed to save Faculty."
-      });
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to save Faculty"
+      );
     }
   };
 
@@ -159,16 +132,13 @@ const ViewCourses = () => {
       }
 
       fetchCourses();
-
-      setFlashMessage({
-        type: "success",
-        message: response.data.message || "Course deleted successfully!",
-      });
+      toast.success(response.data.message || "Course deleted successfully!");
     } catch (error) {
-      setFlashMessage({
-        type: "error",
-        message: error.response?.data?.message || error.message || "Failed to save Faculty."
-      });
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to save Faculty"
+      );
     }
   };
 
@@ -257,17 +227,6 @@ const ViewCourses = () => {
           </div>
         </div>
 
-        {/* Flash Message */}
-        {flashMessage.message && (
-          <div
-            className={`fixed bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-96 z-50 p-4 rounded-lg text-white shadow-lg transition-all transform duration-500 ${
-              flashMessage.type === "success" ? "bg-green-500" : "bg-red-500"
-            }`}
-          >
-            {flashMessage.message}
-          </div>
-        )}
-
         {/* Responsive Course Grid */}
         <div className="p-4 md:p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -349,14 +308,16 @@ const ViewCourses = () => {
 
         {/* Add/Edit Course Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"
-           onClick={() => {
-      setShowModal(false);
-      setSelectedCourse(null);
-    }}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"
+            onClick={() => {
+              setShowModal(false);
+              setSelectedCourse(null);
+            }}
           >
-            <div className="bg-[#F6F1E6] rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
+            <div
+              className="bg-[#F6F1E6] rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6">
                 <h2 className="text-2xl font-semibold mb-6 text-black">
@@ -410,7 +371,9 @@ const ViewCourses = () => {
                       type="text"
                       placeholder="Enter course name"
                       value={
-                        selectedCourse ? selectedCourse.shortName : newCourse.shortName
+                        selectedCourse
+                          ? selectedCourse.shortName
+                          : newCourse.shortName
                       }
                       onChange={(e) =>
                         handleInputChange("shortName", e.target.value)

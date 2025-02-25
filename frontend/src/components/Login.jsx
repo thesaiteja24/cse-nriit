@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate, useLocation, Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { Helmet } from "react-helmet";
 import { useAuth } from "../context/AuthContext";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function Login() {
-  const navigate = useNavigate();
-  const location = useLocation();
   const { user, login } = useAuth();
-  const from = location.state?.from?.pathname || "/courses";
 
   const {
     register,
@@ -18,21 +16,7 @@ export default function Login() {
     formState: { errors },
   } = useForm();
 
-  const [flashMessage, setFlashMessage] = useState({
-    type: location.state?.type || "",
-    message: location.state?.message || "",
-  });
   const [showPassword, setShowPassword] = useState(false);
-
-  useEffect(() => {
-    if (flashMessage.message) {
-      const timer = setTimeout(() => {
-        setFlashMessage({ type: "", message: "" });
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [flashMessage]);
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
@@ -42,19 +26,12 @@ export default function Login() {
     try {
       const result = await login(data);
       if (result.success) {
-        setFlashMessage({ type: "success", message: result.message });
-
-        navigate(from, {
-          state: { message: result.message, type: "success" },
-        });
+        toast.success(result.message);
       } else {
-        setFlashMessage({ type: "error", message: result.message });
+        toast.error(result.message);
       }
     } catch (error) {
-      setFlashMessage({
-        type: "error",
-        message: "An error occurred during login",
-      });
+      toast.error("An error occureed during login");
     }
   };
 
@@ -69,18 +46,6 @@ export default function Login() {
       </Helmet>
       <div className="flex min-h-screen items-center justify-center bg-[#EDE6DA] px-4 py-12 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8 bg-[#F6F1E6] p-6 rounded-lg">
-          {/* Flash Message */}
-          {flashMessage.message && (
-            <div
-              className={`${
-                flashMessage.type === "success"
-                  ? "bg-green-500 text-white"
-                  : "bg-red-500 text-white"
-              } p-2 rounded-md mb-4`}
-            >
-              {flashMessage.message}
-            </div>
-          )}
           <div className="text-center">
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
               Login to your account

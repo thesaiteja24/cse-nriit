@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { Helmet } from "react-helmet";
 import { useAuth } from "../context/AuthContext";
+import { toast } from "react-toastify";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -17,19 +17,7 @@ export default function Register() {
     formState: { errors },
   } = useForm();
 
-  const [flashMessage, setFlashMessage] = useState({ type: "", message: "" });
   const [showPassword, setShowPassword] = useState(false);
-
-  useEffect(() => {
-    if (flashMessage.message) {
-      const timer = setTimeout(() => {
-        setFlashMessage({ type: "", message: "" });
-      }, 3000);
-
-      // Cleanup the timeout on component unmount or when flashMessage changes
-      return () => clearTimeout(timer);
-    }
-  }, [flashMessage.message]);
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
@@ -40,18 +28,13 @@ export default function Register() {
       const result = await registerUser(data);
 
       if (result.success) {
-        setFlashMessage({ type: "success", message: result.message });
-        navigate("/courses", {
-          state: { message: result.message, type: "success" },
-        });
+        toast.success(result.message);
+        navigate("/courses");
       } else {
-        setFlashMessage({ type: "error", message: result.message });
+        toast.error(result.message);
       }
     } catch (err) {
-      setFlashMessage({
-        type: "error",
-        message: "An error occurred during registration",
-      });
+      toast.error("An error occurred during registration");
     }
   };
 
@@ -63,18 +46,6 @@ export default function Register() {
       </Helmet>
       <div className="flex min-h-screen items-center justify-center bg-[#EDE6DA] px-4 py-12 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8 bg-[#F6F1E6] p-6 rounded-lg">
-          {/* Flash Message */}
-          {flashMessage.message && (
-            <div
-              className={`${
-                flashMessage.type === "success"
-                  ? "bg-green-500 text-white"
-                  : "bg-red-500 text-white"
-              } p-2 rounded-md mb`}
-            >
-              {flashMessage.message}
-            </div>
-          )}
           <div className="text-center">
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
               Create an account
