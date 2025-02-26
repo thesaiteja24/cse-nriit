@@ -1,11 +1,12 @@
 const express = require("express");
 const { authMiddleware } = require("../middlewares/auth");
 const {
-  resetPassword,
   registerUser,
   loginUser,
   logout,
   getMe,
+  forgotPassword,
+  resetPassword,
 } = require("../controllers/userController");
 const router = express.Router();
 
@@ -14,7 +15,14 @@ const router = express.Router();
  * @desc    Reset Password of the user
  * @access  Public
  */
-router.post("/forgot-password", resetPassword);
+router.post("/reset/:token", resetPassword);
+
+/**
+ * @route   POST /forgot-password
+ * @desc    Reset Password of the user
+ * @access  Public
+ */
+router.post("/forgot-password", forgotPassword);
 
 /**
  * @route   POST /register

@@ -10,6 +10,53 @@ const User = require("../models/userModel");
 const passport = require("passport");
 const crypto = require("crypto");
 
+/**
+ * Registers a new user.
+ * @param {Object} req - Express request object containing user details in the body.
+ * @param {Object} res - Express response object to send the response.
+ * @returns {void}
+ */
+exports.resetPassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    // Check for missing required fields
+    if (!password) {
+      return res.status(400).json({ message: "Password is Required" });
+    }
+
+    const user = await User.findOne({
+      resetToken: req.params.token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: "Password reset token is invalid or has expired" });
+    }
+    user.authenticate(password, (err, authenticatedUser) => {
+      if (authenticatedUser) {
+        return res.status(400).json({
+          msg: "You cannot use your current password. Please enter a new password.",
+        });
+      }
+    });
+    await user.setPassword(password);
+    user.resetToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+    res.json({
+      success: "ture",
+      message: "Password has been reset successfully",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
 // Regular expression for strong password validation
 const strongPasswordRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -20,7 +67,7 @@ const strongPasswordRegex =
  * @param {Object} res - Express response object to send the response.
  * @returns {void}
  */
-exports.resetPassword = [
+exports.forgotPassword = [
   async (req, res, next) => {
     try {
       const { email } = req.body;
@@ -108,6 +155,7 @@ exports.resetPassword = [
     });
   },
 ];
+
 /**
  * Registers a new user.
  * @param {Object} req - Express request object containing user details in the body.
