@@ -22,7 +22,7 @@ exports.resetPassword = async (req, res) => {
 
     // Check for missing required fields
     if (!password) {
-      return res.status(400).json({ message: "Password is Required" });
+      return res.status(400).json({ message: "Password is required" });
     }
 
     const user = await User.findOne({
@@ -35,20 +35,32 @@ exports.resetPassword = async (req, res) => {
         .status(400)
         .json({ message: "Password reset token is invalid or has expired" });
     }
-    user.authenticate(password, (err, authenticatedUser) => {
-      if (authenticatedUser) {
-        return res.status(400).json({
-          msg: "You cannot use your current password. Please enter a new password.",
-        });
-      }
+
+    // Wrap user.authenticate in a Promise so we can await its result
+    const isSamePassword = await new Promise((resolve, reject) => {
+      user.authenticate(password, (err, authenticatedUser) => {
+        if (err) return reject(err);
+        // If authenticatedUser is truthy, it means the provided password
+        // matches the current password.
+        resolve(!!authenticatedUser);
+      });
     });
+
+    if (isSamePassword) {
+      return res.status(400).json({
+        message:
+          "You cannot use your current password. Please enter a new password.",
+      });
+    }
+
+    // Set the new password using passport-local-mongoose's setPassword method
     await user.setPassword(password);
     user.resetToken = undefined;
     user.resetPasswordExpires = undefined;
 
     await user.save();
-    res.json({
-      success: "ture",
+    res.status(200).json({
+      success: true,
       message: "Password has been reset successfully",
     });
   } catch (err) {
@@ -110,7 +122,7 @@ exports.forgotPassword = [
           </p>
           
           <!-- Reset Password Button -->
-          <a href="http://${process.env.CLIENT_URL}/reset/${token}" 
+          <a href="${process.env.CLIENT_URL}/reset/${token}" 
             style="display: inline-block; padding: 12px 24px; margin: 20px auto; font-size: 16px; font-weight: bold; 
             color: #ffffff; background: #007bff; border-radius: 5px; text-decoration: none;">
             Reset Password

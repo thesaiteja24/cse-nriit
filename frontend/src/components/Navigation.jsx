@@ -14,7 +14,8 @@ const Navigation = () => {
     location.pathname === "/" ||
     location.pathname === "/login" ||
     location.pathname === "/register" ||
-    location.pathname === "/forgot-password"
+    location.pathname === "/forgot-password" ||
+    location.pathname.startsWith("/reset/")
   ) {
     return null;
   }
