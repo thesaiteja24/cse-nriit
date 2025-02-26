@@ -63,7 +63,7 @@ exports.resetPassword = [
           </p>
           
           <!-- Reset Password Button -->
-          <a href="http://${req.headers.host}/reset/${token}" 
+          <a href="http://${process.env.CLIENT_URL}/reset/${token}" 
             style="display: inline-block; padding: 12px 24px; margin: 20px auto; font-size: 16px; font-weight: bold; 
             color: #ffffff; background: #007bff; border-radius: 5px; text-decoration: none;">
             Reset Password
