@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { Helmet } from "react-helmet";
@@ -9,7 +9,7 @@ import { toast, ToastContainer } from "react-toastify";
 
 export default function Login() {
   const { user, login } = useAuth();
-
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -120,8 +120,10 @@ export default function Login() {
 
               <div className="text-sm">
                 <a
-                  href="#"
-                  className="font-medium text-black hover:text-gray-500"
+                  onClick={() => {
+                    navigate("/forgot-password");
+                  }}
+                  className="font-medium text-black hover:text-gray-500 cursor-pointer"
                 >
                   Forgot your password?
                 </a>

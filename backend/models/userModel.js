@@ -16,6 +16,8 @@ const userSchema = new mongoose.Schema({
       "Please provide a valid email address",
     ],
   },
+  resetToken: String,
+  resetPasswordExpires: Date,
   role: {
     type: String,
     enum: ["admin", "user"],

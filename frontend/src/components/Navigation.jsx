@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from "../context/AuthContext";
 
 const Navigation = () => {
   const location = useLocation();
@@ -13,7 +13,8 @@ const Navigation = () => {
   if (
     location.pathname === "/" ||
     location.pathname === "/login" ||
-    location.pathname === "/register"
+    location.pathname === "/register" ||
+    location.pathname === "/forgot-password"
   ) {
     return null;
   }
@@ -21,7 +22,7 @@ const Navigation = () => {
   const handleLogout = async () => {
     const result = await logout();
     if (result.success) {
-      navigate('/login');
+      navigate("/login");
     }
   };
 

@@ -26,16 +26,19 @@ exports.resetPassword = [
       const { email } = req.body;
 
       if (!email) {
-        return res.status(400).json({ message: "Email is required" });
+        return res
+          .status(400)
+          .json({ success: false, message: "Email is required" });
       }
 
       const user = await User.findOne({ email });
       if (!user) {
-        return res
-          .status(404)
-          .json({ message: "No account with that email address exists" });
+        return res.status(404).json({
+          success: false,
+          message: "No account with that email address exists",
+        });
       }
-
+      console.log(user);
       const token = crypto.randomBytes(24).toString("hex");
       user.resetToken = token;
       user.resetPasswordExpires = Date.now() + 600000; // 10 minutes
@@ -45,12 +48,51 @@ exports.resetPassword = [
       req.mailOptions = {
         to: user.email,
         from: process.env.EMAIL,
-        subject: "Reset your password",
-        text: `You are receiving this because you (or someone else) have requested to reset the password for your account.\n\n
-        Please click on the following link, or paste it into your browser to complete the process:\n\n
-        http://${req.headers.host}/reset/${token}\n\n
-        If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+        subject: "Reset Your Password",
+        html: `
+        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; border-radius: 10px; background: #ffffff; text-align: center; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+          <!-- Logo -->
+          <h1 style="color: #FFA500; font-size: 50px">Time Table Generator</h1>
+
+          <!-- Greeting -->
+          <h2 style="color: #000; margin-top: 20px;">Hello ${user.fullname},</h2>
+
+          <!-- Message -->
+          <p style="color: #333; font-size: 16px; padding: 0 20px;">
+            We have received a request for changing your password for Time Table Generator.
+          </p>
+          
+          <!-- Reset Password Button -->
+          <a href="http://${req.headers.host}/reset/${token}" 
+            style="display: inline-block; padding: 12px 24px; margin: 20px auto; font-size: 16px; font-weight: bold; 
+            color: #ffffff; background: #007bff; border-radius: 5px; text-decoration: none;">
+            Reset Password
+          </a>
+
+          <!-- Token Expiry Notice -->
+          <p style="color: #ff0000; font-size: 14px; margin-top: 10px;">
+            ⚠️ This link is valid for only 10 minutes. Please reset your password before it expires.
+          </p>
+
+          <!-- Additional Message -->
+          <p style="color: #777; font-size: 14px; padding: 0 20px;">
+            If you didn’t request this, you can safely ignore this email.
+          </p>
+
+          <!-- Footer -->
+          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+          <p style="color: #999; font-size: 12px;">
+            <strong>Time Table Generator</strong><br>
+            The Most Loved Scheduling Tool ❤️
+          </p>
+          <p style="color: #aaa; font-size: 10px;">
+            &copy; 2025 Time Table Generator. All rights reserved.
+          </p>
+        </div>
+
+        `,
       };
+
       next();
     } catch (err) {
       console.error(err);
@@ -59,7 +101,11 @@ exports.resetPassword = [
   },
   emailMiddleware,
   (req, res) => {
-    res.status(200).json({ message: "Recovery email sent" });
+    res.status(200).json({
+      success: true,
+      message: "Password reset instructions Sent",
+      email: req.body.email,
+    });
   },
 ];
 /**
@@ -115,7 +161,7 @@ exports.registerUser = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 
@@ -189,10 +235,10 @@ exports.loginUser = (req, res, next) => {
 exports.logout = (req, res, next) => {
   req.logout((err) => {
     if (err) {
-      return res.status(500).json({ message: "Logout failed" });
+      return res.status(500).json({ success: false, message: "Logout failed" });
     }
     res.clearCookie("connect.sid");
-    res.status(200).json({ message: "Logged out successfully" });
+    res.status(200).json({ success: true, message: "Logged out successfully" });
   });
 };
 

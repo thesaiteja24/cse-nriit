@@ -12,6 +12,7 @@ import AssignFaculty from "./components/AssignFaculty";
 import CardComponent from "./components/cardComponent";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
+import ForgotPassword from "./components/ForgotPassword";
 
 const App = () => {
   return (
@@ -36,6 +37,7 @@ const App = () => {
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route
                 path="/courses"
                 element={
