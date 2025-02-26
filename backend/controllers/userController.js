@@ -1,17 +1,67 @@
 /**
  * User Authentication Controller
- * 
+ *
  * This module handles user authentication functionalities such as registering, logging in,
  * logging out, and fetching user details.
  */
 
+const emailMiddleware = require("../middlewares/email");
 const User = require("../models/userModel");
 const passport = require("passport");
+const crypto = require("crypto");
 
 // Regular expression for strong password validation
 const strongPasswordRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
+/**
+ * Reset password of user.
+ * @param {Object} req - Express request object containing user email in the body.
+ * @param {Object} res - Express response object to send the response.
+ * @returns {void}
+ */
+exports.resetPassword = [
+  async (req, res, next) => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res
+          .status(404)
+          .json({ message: "No account with that email address exists" });
+      }
+
+      const token = crypto.randomBytes(24).toString("hex");
+      user.resetToken = token;
+      user.resetPasswordExpires = Date.now() + 600000; // 10 minutes
+
+      await user.save();
+
+      req.mailOptions = {
+        to: user.email,
+        from: process.env.EMAIL,
+        subject: "Reset your password",
+        text: `You are receiving this because you (or someone else) have requested to reset the password for your account.\n\n
+        Please click on the following link, or paste it into your browser to complete the process:\n\n
+        http://${req.headers.host}/reset/${token}\n\n
+        If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+      };
+      next();
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  },
+  emailMiddleware,
+  (req, res) => {
+    res.status(200).json({ message: "Recovery email sent" });
+  },
+];
 /**
  * Registers a new user.
  * @param {Object} req - Express request object containing user details in the body.
