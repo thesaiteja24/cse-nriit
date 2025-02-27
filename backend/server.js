@@ -12,6 +12,7 @@ const connectDB = require("./config/db");
 const configurePassport = require("./config/passport");
 const Routes = require("./routes/index");
 const errorHandler = require("./middlewares/errorHandler");
+const path = require('path');
 
 // Define environment-specific constants
 const isProduction = process.env.NODE_ENV === "production";
@@ -73,6 +74,8 @@ app.use(session(sessionOptions));
 
 // Passport Configuration
 configurePassport(app);
+
+app.use(express.static(path.join(__dirname, 'dist')));
 
 // Mount Routes
 app.use("/", Routes);
