@@ -19,6 +19,7 @@
     "react-helmet": "^6.1.0",
     "react-hook-form": "^7.54.1",
     "react-router-dom": "^7.0.2",
+    "react-select": "^5.10.0",
     "react-toastify": "^11.0.5"
   },
   "devDependencies": {

@@ -15,7 +15,7 @@ const router = express.Router();
  * @desc    Reset Password of the user
  * @access  Public
  */
-router.post("/reset/:token", resetPassword);
+router.post("/reset/:token", resetPassword);``
 
 /**
  * @route   POST /forgot-password

@@ -10,7 +10,6 @@ const AssignFaculty = () => {
     baseURL: backend_url,
   });
 
-
   const [semester, setSemester] = useState("");
   const [branch, setBranch] = useState("");
   const [regulation, setRegulation] = useState("");
@@ -78,6 +77,7 @@ const AssignFaculty = () => {
       setSelectedFaculty3("");
 
       toast.success("Faculty assigned successfully");
+      console.log(assigned);
     } catch (err) {
       console.error("Error assigning faculty:", err);
       toast.error("Failed to assign facultyy. Please try again");
@@ -123,7 +123,7 @@ const AssignFaculty = () => {
       toast.success(`Found ${response.data.count} courses`);
     } catch (error) {
       console.error("Error fetching courses:", error);
-      toast.error("Failed to fetch courses");
+      toast.error(error.response?.data.message || "Failed to fetch courses");
     }
   };
 
@@ -173,6 +173,50 @@ const AssignFaculty = () => {
       toast.error("Failed to delete course. Please try again.");
     }
   };
+
+  const handleComplete = async () => {
+    const completeAssignment = {
+      semester: semester,
+      branch: branch,
+      regulation: regulation,
+      assigned: { ...assigned },
+    };
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}assign/complete`,
+        completeAssignment
+      );
+
+      if (response.data.success) {
+        toast.success(response.data.message);
+      }
+    } catch (error) {
+      console.log("Things went south", error);
+      toast.error(error.response?.data.message || "Internal Server Error");
+    }
+
+    console.log(completeAssignment);
+  };
+
+  useEffect(() => {
+    const handleClick = () => setVisibleDropdown(null);
+
+    window.addEventListener("click", handleClick);
+
+    return () => {
+      window.removeEventListener("click", handleClick);
+    };
+  }, []);
+
+  // Filter out assigned courses from the available courses
+  const filteredCourseOptions = courses.filter(
+    (course) =>
+      !assigned.some(
+        (assignedCourse) =>
+          assignedCourse.courseId.toString() === course._id.toString()
+      )
+  );
+
   return (
     <>
       <Helmet>
@@ -248,12 +292,12 @@ const AssignFaculty = () => {
               onChange={(e) => setSelectedCourse(e.target.value)}
             >
               <option value="">Select Course</option>
-              {courses.map((courses) => (
+              {filteredCourseOptions.map((course) => (
                 <option
-                  key={courses._id}
-                  value={[courses._id, courses.shortName]}
+                  key={course._id}
+                  value={`${course._id},${course.shortName}`}
                 >
-                  {courses.shortName}
+                  {course.shortName}
                 </option>
               ))}
             </select>
@@ -381,8 +425,16 @@ const AssignFaculty = () => {
           </div>
         </div>
 
-        {/* Add Course Modal */}
-        {showModal && <div></div>}
+        {assigned.length > 0 && (
+          <div className="flex justify-end gap-3 w-full sm:w-auto p-4 md:p-6">
+            <button
+              className="flex-1 sm:flex-none bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-black"
+              onClick={handleComplete}
+            >
+              Complete Assignment{" "}
+            </button>
+          </div>
+        )}
       </div>
     </>
   );

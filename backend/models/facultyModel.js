@@ -5,7 +5,6 @@ const facultySchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      unique: true,
     },
     contact: {
       type: [Number], // Array of numbers for multiple contacts
