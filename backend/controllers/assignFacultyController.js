@@ -29,18 +29,30 @@ class AssignFaculty {
 
       const { semester, branch, regulation, assigned } = req.body;
 
-      const existingAssignment = await assignFaculty.findOneAndUpdate(
-        { semester, branch, regulation },
-        { assigned },
-        { new: true, upsert: true }
-      );
-      console.log(existingAssignment);
+      const existingAssignment = await assignFaculty.findOne({
+        semester,
+        branch,
+        regulation,
+      });
 
-      const message = existingAssignment
-        ? "Existing Faculty and Course assignment has been updated"
-        : "Faculty assignment to course is completed successfully";
+      if (existingAssignment) {
+        await assignFaculty.updateOne(
+          { semester, branch, regulation },
+          { assigned }
+        );
+        return res.status(200).json({
+          success: "ture",
+          message: "Existing Faculty and Course assignment has been updated",
+        });
+      }
 
-      return res.status(201).json({ success: true, message });
+      const newAssignment = new assignFaculty(req.body);
+      await newAssignment.save();
+
+      return res.status(201).json({
+        success: true,
+        message: "Faculty assignment to course is completed successfully",
+      });
     } catch (error) {
       console.error("Things went south", error);
       res.status(500).json({
