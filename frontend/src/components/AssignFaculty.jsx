@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Helmet } from "react-helmet";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion";
+import { div } from "framer-motion/client";
 
 const AssignFaculty = () => {
   const backend_url = import.meta.env.VITE_BACKEND_URL;
@@ -10,6 +12,7 @@ const AssignFaculty = () => {
     baseURL: backend_url,
   });
 
+  const [assignFacultyDropdown, setAssignFacultyDropdown] = useState(false);
   const [semester, setSemester] = useState("");
   const [branch, setBranch] = useState("");
   const [regulation, setRegulation] = useState("");
@@ -121,9 +124,11 @@ const AssignFaculty = () => {
 
       setCourses(response.data.data);
       toast.success(`Found ${response.data.count} courses`);
+      return true;
     } catch (error) {
       console.error("Error fetching courses:", error);
       toast.error(error.response?.data.message || "Failed to fetch courses");
+      return false;
     }
   };
 
@@ -146,9 +151,11 @@ const AssignFaculty = () => {
 
       setFaculty(response.data.data);
       toast.success(`Found ${response.data.count} faculty`);
+      return true;
     } catch (error) {
       console.error("Error fetching faculty:", error);
       toast.error(error.message || "Failed to fetch faculty");
+      return false;
     }
   };
 
@@ -228,9 +235,19 @@ const AssignFaculty = () => {
         <meta name="description" content="Assign Courses to faculty" />
         <meta name="keywords" content="courses, education, react" />
       </Helmet>
-      <div className="bg-[#EDE6DA] min-h-screen font-sans relative">
+      <div className="bg-[#EDE6DA] min-h-screen  relative">
         {/* Navbar */}
-        <div className="bg-[#F6F1E6] p-4 md:p-6 flex flex-col justify-between gap-5">
+
+        <motion.div
+          initial={{ opacity: 1, y: 0 }}
+          animate={
+            assignFacultyDropdown
+              ? { opacity: 0, y: -20 }
+              : { opacity: 1, y: 0 }
+          }
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className={`bg-[#F6F1E6] p-4 md:p-6 flex flex-col justify-between gap-5 lg:flex-row`}
+        >
           <div className="flex flex-col gap-3 md:flex-row">
             {/* Dropdowns */}
             <select
@@ -281,86 +298,103 @@ const AssignFaculty = () => {
               Show Previously Assigned
             </button>
             <button
-              onClick={() => {
-                fetchCourses();
-                fetchFaculty();
+              onClick={async () => {
+                try {
+                  const coursesResponse = await fetchCourses();
+                  if (!coursesResponse) return; // Stop if courses fetch fails
+
+                  const facultyResponse = await fetchFaculty();
+                  if (!facultyResponse) return; // Stop if faculty fetch fails
+                  setAssignFacultyDropdown(true);
+                } catch (error) {
+                  console.error("Error in fetching courses or faculty:", error);
+                }
               }}
               className="flex-1 sm:flex-none bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-black"
             >
               Get Faculty and Courses
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Assign Faculty */}
 
-        <div className="bg-transparent p-4 md:p-6 flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 w-full md:w-auto m-1">
-            <select
-              className="w-full border border-gray-400 p-2 rounded bg-white text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-              value={selectedCourse}
-              onChange={(e) => setSelectedCourse(e.target.value)}
-            >
-              <option value="">Select Course</option>
-              {filteredCourseOptions.map((course) => (
-                <option
-                  key={course._id}
-                  value={`${course._id},${course.shortName}`}
-                >
-                  {course.shortName}
-                </option>
-              ))}
-            </select>
+        {assignFacultyDropdown && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }} // Start hidden and slightly above
+            animate={{ opacity: 1, y: 0 }} // Fade in and slide down
+            exit={{ opacity: 0, y: -20 }} // Fade out and slide up on unmount
+            transition={{ duration: 0.3, ease: "easeOut" }} // Smooth transition
+            className="bg-transparent p-4 md:p-6 flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 w-full md:w-auto m-1">
+              <select
+                className="w-full border border-gray-400 p-2 rounded bg-white text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                value={selectedCourse}
+                onChange={(e) => setSelectedCourse(e.target.value)}
+              >
+                <option value="">Select Course</option>
+                {filteredCourseOptions.map((course) => (
+                  <option
+                    key={course._id}
+                    value={`${course._id},${course.shortName}`}
+                  >
+                    {course.shortName}
+                  </option>
+                ))}
+              </select>
 
-            <select
-              className="w-full border border-gray-400 p-2 rounded bg-white text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-              value={selectedFaculty1}
-              onChange={(e) => setSelectedFaculty1(e.target.value)}
-            >
-              <option value="">Select Faculty 1</option>
-              {faculty.map((faculty) => (
-                <option key={faculty._id} value={[faculty._id, faculty.name]}>
-                  {faculty.name}
-                </option>
-              ))}
-            </select>
+              <select
+                className="w-full border border-gray-400 p-2 rounded bg-white text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                value={selectedFaculty1}
+                onChange={(e) => setSelectedFaculty1(e.target.value)}
+              >
+                <option value="">Select Faculty 1</option>
+                {faculty.map((faculty) => (
+                  <option key={faculty._id} value={[faculty._id, faculty.name]}>
+                    {faculty.name}
+                  </option>
+                ))}
+              </select>
 
-            <select
-              className="w-full border border-gray-400 p-2 rounded bg-white text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-              value={selectedFaculty2}
-              onChange={(e) => setSelectedFaculty2(e.target.value)}
-            >
-              <option value="">Select Faculty 2</option>
-              {faculty.map((faculty) => (
-                <option key={faculty._id} value={[faculty._id, faculty.name]}>
-                  {faculty.name}
-                </option>
-              ))}
-            </select>
-            <select
-              className="w-full border border-gray-400 p-2 rounded bg-white text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-              value={selectedFaculty3}
-              onChange={(e) => setSelectedFaculty3(e.target.value)}
-            >
-              <option value="">Select Faculty 3</option>
-              {faculty.map((faculty) => (
-                <option key={faculty._id} value={[faculty._id, faculty.name]}>
-                  {faculty.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex gap-3 w-full sm:w-auto m-1">
-            <button
-              className="flex-1 sm:flex-none bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-black"
-              onClick={assignFaculty}
-            >
-              Save{" "}
-            </button>
-          </div>
-        </div>
+              <select
+                className="w-full border border-gray-400 p-2 rounded bg-white text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                value={selectedFaculty2}
+                onChange={(e) => setSelectedFaculty2(e.target.value)}
+              >
+                <option value="">Select Faculty 2</option>
+                {faculty.map((faculty) => (
+                  <option key={faculty._id} value={[faculty._id, faculty.name]}>
+                    {faculty.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="w-full border border-gray-400 p-2 rounded bg-white text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                value={selectedFaculty3}
+                onChange={(e) => setSelectedFaculty3(e.target.value)}
+              >
+                <option value="">Select Faculty 3</option>
+                {faculty.map((faculty) => (
+                  <option key={faculty._id} value={[faculty._id, faculty.name]}>
+                    {faculty.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex gap-3 w-full sm:w-auto m-1">
+              <button
+                className="flex-1 sm:flex-none bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                onClick={assignFaculty}
+              >
+                Save{" "}
+              </button>
+            </div>
+          </motion.div>
+        )}
 
         {/* Assigned Faculty table*/}
+
         <div className="p-4 md:p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {assigned.length > 0 ? (

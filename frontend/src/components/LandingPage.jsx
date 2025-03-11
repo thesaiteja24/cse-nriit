@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet";
 
 const LandingPage = () => {
   return (
-    <div className="bg-[#EDE6DA] min-h-screen text-[#2B2B2B] font-sans">
+    <div className="bg-[#EDE6DA] min-h-screen text-[#2B2B2B] ">
       <Helmet>
         <title>Welcome to Our Platform</title>
         <meta name="description" content="The landing page for our platform." />

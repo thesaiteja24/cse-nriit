@@ -230,7 +230,7 @@ const ViewFaculty = () => {
         <title>Faculty</title>
         <meta name="description" content="Meet our faculty members" />
       </Helmet>
-      <div className="bg-[#EDE6DA] min-h-screen font-sans relative">
+      <div className="bg-[#EDE6DA] min-h-screen  relative">
         {/* Responsive Navbar */}
         <div className="bg-[#F6F1E6] p-4 md:p-6 flex flex-col sm:flex-row items-center justify-between shadow-md space-y-4 sm:space-y-0">
           {/* Filter Section */}

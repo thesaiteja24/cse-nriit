@@ -165,7 +165,7 @@ const ViewCourses = () => {
         <meta name="description" content="Explore our courses" />
         <meta name="keywords" content="courses, education, react" />
       </Helmet>
-      <div className="bg-[#EDE6DA] min-h-screen font-sans relative">
+      <div className="bg-[#EDE6DA] min-h-screen  relative">
         {/* Responsive Navbar */}
         <div className="bg-[#F6F1E6] p-4 md:p-6 flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between shadow-md">
           {/* Filters Section */}
