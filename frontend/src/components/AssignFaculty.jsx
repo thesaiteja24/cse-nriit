@@ -198,6 +198,10 @@ const AssignFaculty = () => {
     console.log(completeAssignment);
   };
 
+  const fetchAssignedFaculties = () => {
+    console.log("Fetch Faculty");
+  };
+
   useEffect(() => {
     const handleClick = () => setVisibleDropdown(null);
 
@@ -226,8 +230,8 @@ const AssignFaculty = () => {
       </Helmet>
       <div className="bg-[#EDE6DA] min-h-screen font-sans relative">
         {/* Navbar */}
-        <div className="bg-[#F6F1E6] p-4 md:p-6 flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between shadow-md">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 w-full md:w-auto m-1">
+        <div className="bg-[#F6F1E6] p-4 md:p-6 flex flex-col justify-between gap-5">
+          <div className="flex flex-col gap-3 md:flex-row">
             {/* Dropdowns */}
             <select
               className="w-full border border-gray-400 p-2 rounded bg-white text-black focus:ring-2 focus:ring-black focus:border-transparent transition-all"
@@ -269,7 +273,13 @@ const AssignFaculty = () => {
             </select>
           </div>
 
-          <div className="flex gap-3 justify-end m-1">
+          <div className="flex flex-col gap-3 justify-end md:flex-row">
+            <button
+              className="flex-1 sm:flex-none bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-black"
+              onClick={fetchAssignedFaculties()}
+            >
+              Show Previously Assigned
+            </button>
             <button
               onClick={() => {
                 fetchCourses();
