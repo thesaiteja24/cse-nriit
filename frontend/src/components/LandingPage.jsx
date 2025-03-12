@@ -4,7 +4,6 @@ import { Helmet } from "react-helmet";
 
 const LandingPage = () => {
   return (
-    
     <div className="bg-[#EDE6DA] min-h-screen text-[#2B2B2B] font-sans">
       <Helmet>
         <title>Welcome to Our Platform</title>
@@ -13,7 +12,9 @@ const LandingPage = () => {
       </Helmet>
       {/* Navbar */}
       <header className="flex flex-col sm:flex-row justify-between items-center p-4 sm:py-6 sm:px-8 bg-[#F6F1E6] shadow-sm">
-        <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-0">Timetable Generator</h1>
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-0">
+          Timetable Generator
+        </h1>
         <div className="flex gap-2">
           <Link to="/login">
             <button className="rounded-full bg-black text-white px-4 sm:px-6 py-2 text-sm hover:bg-gray-800">
@@ -73,26 +74,46 @@ const LandingPage = () => {
         <p className="text-gray-700 leading-relaxed max-w-4xl mx-auto text-sm sm:text-base">
           Welcome to Timetable Generator! A platform to generate Time Table.
           where we take the burden of scheduling from you. Our team{" "}
-          <b>Sai Teja, Shanwaz, Gayathri</b>, and <b>Mushtaq</b> has
-          developed an easy-to-use Timetable Generator to simplify the process
-          of creating and managing your schedules efficiently.
+          <b>Sai Teja, Shanwaz, Gayathri</b>, and <b>Mushtaq</b> has developed
+          an easy-to-use Timetable Generator to simplify the process of creating
+          and managing your schedules efficiently.
         </p>
         <div className="mt-6">
           <p className="font-bold mb-3">Contact Us</p>
           <div className="flex flex-wrap justify-center gap-4">
-            <a href="https://www.linkedin.com/in/saitejapatsa/" target="_blank" rel="noopener noreferrer" className="hover:underline">
+            <a
+              href="https://www.linkedin.com/in/saitejapatsa/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline"
+            >
               Sai Teja
             </a>
-            <a href="https://www.linkedin.com/in/shaikshanwaz/" target="_blank" rel="noopener noreferrer" className="hover:underline">
+            <a
+              href="https://www.linkedin.com/in/shaikshanwaz/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline"
+            >
               Shanwaz
             </a>
             {/* <a href="https://www.linkedin.com/in/knv-manideep-81664926a/" target="_blank" rel="noopener noreferrer" className="hover:underline">
               Manideep
             </a> */}
-            <a href="https://www.linkedin.com/in/panidepu-gayathri-56814326a/" target="_blank" rel="noopener noreferrer" className="hover:underline">
-            Gayathri
+            <a
+              href="https://www.linkedin.com/in/panidepu-gayathri-56814326a/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline"
+            >
+              Gayathri
             </a>
-            <a href="https://www.linkedin.com/in/mohammad-mushtaq-ahamad-436305256/" target="_blank" rel="noopener noreferrer" className="hover:underline">
+            <a
+              href="https://www.linkedin.com/in/mohammad-mushtaq-ahamad-436305256/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline"
+            >
               Mushtaq
             </a>
           </div>
@@ -101,8 +122,9 @@ const LandingPage = () => {
 
       {/* Footer */}
       <footer className="text-center text-gray-600 py-4 sm:py-6 text-xs sm:text-sm">
-        Copyright © <span className="underline">{new Date().getFullYear()}</span>. All rights
-        reserved.
+        Copyright ©{" "}
+        <span className="underline">{new Date().getFullYear()}</span>. All
+        rights reserved.
       </footer>
     </div>
   );
