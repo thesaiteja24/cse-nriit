@@ -209,6 +209,14 @@ const AssignFaculty = () => {
     console.log("Fetch Faculty");
   };
 
+  const handleClear = () => {
+    setAssigned([]);
+  };
+
+  const handleReset = () => {
+    setAssigned([]);
+    setAssignFacultyDropdown(false);
+  };
   useEffect(() => {
     const handleClick = () => setVisibleDropdown(null);
 
@@ -246,7 +254,9 @@ const AssignFaculty = () => {
               : { opacity: 1, y: 0 }
           }
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className={`bg-[#F6F1E6] p-4 md:p-6 flex flex-col justify-between gap-5 lg:flex-row`}
+          className={`bg-[#F6F1E6] p-4 md:p-6 flex flex-col justify-between gap-5 lg:flex-row shadow-md ${
+            assignFacultyDropdown ? "hidden" : "flex"
+          }`}
         >
           <div className="flex flex-col gap-3 md:flex-row">
             {/* Dropdowns */}
@@ -385,6 +395,18 @@ const AssignFaculty = () => {
             <div className="flex gap-3 w-full sm:w-auto m-1">
               <button
                 className="flex-1 sm:flex-none bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                onClick={handleClear}
+              >
+                Clear{" "}
+              </button>
+              <button
+                className="flex-1 sm:flex-none bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                onClick={handleReset}
+              >
+                Reset{" "}
+              </button>
+              <button
+                className="flex-1 sm:flex-none bg-green-700 text-white px-6 py-2 rounded hover:bg-green-600 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-green"
                 onClick={assignFaculty}
               >
                 Save{" "}
